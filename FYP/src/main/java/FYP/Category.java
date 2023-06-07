@@ -37,7 +37,7 @@ public class Category {
 	
 	@NotNull
 	@NotEmpty(message="Category name cannot be empty!")
-	@Size(min=3, max=10, message="Category length must be between 3 and 10 characters!")
+	@Size(min=3, max=30, message="Category length must be between 3 and 30 characters!")
 	
 	private String name;
 	
