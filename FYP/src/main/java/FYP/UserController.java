@@ -12,10 +12,11 @@
  */
 package FYP;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -101,11 +102,23 @@ public class UserController {
 		return "redirect:/user";
 	}
 
+//	@GetMapping("/user/delete/{id}")
+//	public String deleteUser(@PathVariable("id") Long id) {
+//
+//		userRepository.deleteById(id);
+//
+//		return "redirect:/user";
+//	}
 	@GetMapping("/user/delete/{id}")
-	public String deleteUser(@PathVariable("id") Long id) {
-
-		userRepository.deleteById(id);
-
-		return "redirect:/user";
-	}
+    public String deleteUser(@PathVariable("id") Long id, Authentication authentication) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            String deletedBy = authentication.getName(); // Get the username of the logged-in admin
+            user.setDeletedBy(deletedBy);
+            user.setDeletedAt(new Date());
+            userRepository.save(user);
+        }
+        return "redirect:/user";
+    }
+	
 }

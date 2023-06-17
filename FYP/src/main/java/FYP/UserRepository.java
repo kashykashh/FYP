@@ -12,7 +12,11 @@
  */
 package FYP;
 
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+
 
 /**
  * @author 21033239
@@ -29,4 +33,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	public User findByEmail(String email);
 	
 	public User findByResetToken(String resetToken);
+	
 }

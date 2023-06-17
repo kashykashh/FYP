@@ -29,7 +29,7 @@ import javax.persistence.OrderColumn;
  * @author 21033239
  *
  */
-@Entity
+@Entity 
 public class Item {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +39,6 @@ public class Item {
 	private double price;
 	private int quantity;
 	private String imgName;
-//	private String userName;
 
 	@Column(name = "previous_quantity", nullable = false, columnDefinition = "INT DEFAULT 0")
 	private Integer previousQuantity;
@@ -145,12 +144,4 @@ public class Item {
 		this.user = user;
 	}
 
-//	public String getUserName() {
-//		userName = user.getName();
-//		return userName;
-//	}
-//	
-//	public void setUserName(String userName) {
-//		this.userName = userName;
-//	}
 }

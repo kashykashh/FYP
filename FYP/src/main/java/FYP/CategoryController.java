@@ -31,6 +31,9 @@ public class CategoryController {
 	@Autowired
 	private CategoryRepository categoryRepository;
 	
+	@Autowired
+	private ItemRepository itemRepository;
+	
 	@GetMapping("/categories")
 	public String viewCategories(Model model) {
 		
@@ -74,4 +77,15 @@ public class CategoryController {
   	  
   	  return "redirect:/categories";
     }
+	
+	@GetMapping("/categories/{categoryId}")
+	public String viewItemsByCategory(@PathVariable("categoryId") Long categoryId, Model model) {
+	    Category category = categoryRepository.findById(categoryId)
+	        .orElseThrow(() -> new IllegalArgumentException("Invalid category ID: " + categoryId));
+	    List<Item> items = itemRepository.findByCategoryId(categoryId);
+	    model.addAttribute("category", category);
+	    model.addAttribute("items", items);
+	    return "view_items_by_category";
+	}
+
 }

@@ -146,7 +146,7 @@ public class CartItemController {
 		return "redirect:/cart";
 	}
 
-	@PostMapping("/cart/process_order")
+	@PostMapping("/cart/process_order") 
 	public String processOrder(Model model, @RequestParam("cartTotal") double cartTotal,
 			@RequestParam("userId") Long userId, @RequestParam("orderId") String orderId,
 			@RequestParam("transactionId") String transactionId) {
@@ -186,6 +186,7 @@ public class CartItemController {
 		}
 		// Pass info to view to display success page
 		model.addAttribute("transactionId", transactionId);
+		model.addAttribute("orderId", orderId);
 
 		// Send email
 		String subject = "Booklink order is confirmed!";

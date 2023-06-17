@@ -29,11 +29,17 @@ public class fypHomeController {
 
 	@Autowired
 	private ItemRepository itemRepository;
+	
+	@Autowired
+	private CategoryRepository categoryRepository;
 
 	@GetMapping("/")
 	public String home(Model model) {
 		List<Item> listItems = itemRepository.findAll();
+	    List<Category> listCategories = categoryRepository.findAll();
 		model.addAttribute("listItems", listItems);
+	    model.addAttribute("listCategories", listCategories);
+
 		return "index";
 	}
 
