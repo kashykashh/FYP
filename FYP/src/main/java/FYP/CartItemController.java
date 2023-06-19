@@ -49,6 +49,9 @@ public class CartItemController {
 	@Autowired
 	private JavaMailSender javaMailSender;
 
+	@Autowired
+	private TopSellingItemRepository topSellingItemRepository;
+
 	@GetMapping("/cart")
 	public String showCart(Model model, Principal principal) {
 
@@ -146,7 +149,7 @@ public class CartItemController {
 		return "redirect:/cart";
 	}
 
-	@PostMapping("/cart/process_order") 
+	@PostMapping("/cart/process_order")
 	public String processOrder(Model model, @RequestParam("cartTotal") double cartTotal,
 			@RequestParam("userId") Long userId, @RequestParam("orderId") String orderId,
 			@RequestParam("transactionId") String transactionId) {
@@ -168,6 +171,20 @@ public class CartItemController {
 			int qtyToUpdate = qtyInventory - qtyInCart;
 			currentItem.setQuantity(qtyToUpdate);
 			itemRepo.save(currentItem);
+
+			// Update top selling item
+			TopSellingItem topSellingItem = topSellingItemRepository.findByItem(currentItem);
+			if (topSellingItem == null) {
+				// Create a new top selling item
+				topSellingItem = new TopSellingItem();
+				topSellingItem.setItem(currentItem);
+				topSellingItem.setSeller(currentItem.getUser());
+				topSellingItem.setQuantitySold(qtyInCart);
+			} else {
+				// Increment the quantity sold of the existing top selling item
+				topSellingItem.setQuantitySold(topSellingItem.getQuantitySold() + qtyInCart);
+			}
+			topSellingItemRepository.save(topSellingItem);
 
 			// Add item to order table
 			OrderItem newOrderItem = new OrderItem();

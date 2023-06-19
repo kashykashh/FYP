@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Top Selling Items</title>
+</head>
+<body>
+    <h1>Top Selling Items</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Quantity Sold</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="topSellingItem : ${topSellingItems}">
+                <td th:text="${topSellingItem.item.name}"></td>
+                <td th:text="${topSellingItem.quantitySold}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

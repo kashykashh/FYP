@@ -29,7 +29,7 @@ import javax.persistence.OrderColumn;
  * @author 21033239
  *
  */
-@Entity 
+@Entity
 public class Item {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -108,11 +108,11 @@ public class Item {
 	}
 
 	public void setQuantity(Integer quantity) {
-	    if (this.quantity != -1) {
-	        this.previousQuantity = this.quantity;
-	    }
-	    this.quantity = quantity;
-	    this.quantityHistory.add(quantity);
+		if (this.quantity != -1) {
+			this.previousQuantity = this.quantity;
+		}
+		this.quantity = quantity;
+		this.quantityHistory.add(quantity);
 	}
 
 	public Integer getPreviousQuantity() {
@@ -143,5 +143,4 @@ public class Item {
 	public void setUser(User user) {
 		this.user = user;
 	}
-
 }

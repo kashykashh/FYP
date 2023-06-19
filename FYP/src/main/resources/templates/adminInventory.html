@@ -19,11 +19,11 @@
 		<form th:action="@{/adminInventory}" method="get" class="searchBar">
 			<div class="input-group mb-3">
 				<input type="text" name="keyword" class="form-control"
-					placeholder="Search keyword here..."> <input type="text"
+					placeholder="Search keyword..."> <input type="text"
 					name="userName" class="form-control"
-					placeholder="Search by seller name..."> <input
+					placeholder="Search seller name..."> <input
 					type="number" name="maxQuantity" class="form-control"
-					placeholder="Maximum quantity"> <select name="categoryId"
+					placeholder="Max quantity"> <select name="categoryId"
 					class="form-select">
 					<option value="">All Categories</option>
 					<option th:each="category : ${categories}"
@@ -70,7 +70,7 @@
 									<input type="hidden" name="_method" value="put" /> <input
 										type="hidden" name="itemId" th:value="${item.id}" /> <input
 										type="number" name="quantity" th:value="${item.quantity}"
-										min="0" max="100" step="1" />
+										min="0" max="10000" step="1" />
 									<button type="submit" class="btn btn-danger m-3">Update</button>
 								</form>
 								<form th:action="@{'/adminInventory/undo/' + ${item.id}}"

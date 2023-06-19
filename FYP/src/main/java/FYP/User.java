@@ -97,7 +97,4 @@ public class User {
 	public void setDeletedAt(Date deletedAt) {
 		this.deletedAt = deletedAt;
 	}
-
-	
-	
 }

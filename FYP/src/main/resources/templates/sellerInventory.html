@@ -54,7 +54,7 @@
 								class="quantity-form">
 								<input type="hidden" name="_method" value="put" /> <input type="hidden" name="itemId"
 									th:value="${item.id}" /> <input type="number" name="quantity"
-									th:value="${item.quantity}" min="0" max="100" step="1" />
+									th:value="${item.quantity}" min="0" max="10000" step="1" />
 								<button type="submit">Update</button>
 							</form>
 							<span style="margin-left: 5px;"></span>

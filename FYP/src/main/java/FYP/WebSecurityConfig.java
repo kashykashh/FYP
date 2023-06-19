@@ -67,6 +67,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	    	.antMatchers("/forgot-password/**", "/password-reset-requested/**", "/password-reset-success/**", "/reset-password/**", "/cart/process_order/**").permitAll()
 	        .antMatchers("/categories/add", "/categories/edit/*", "/categories/save", "/categories/delete/*", "/user/**").hasRole("ADMIN")
 	        .antMatchers("/items/add", "/items/edit/{id}", "/items/save", "/items/delete/{id}").hasAnyRole("ADMIN", "SELLER")
+	        .antMatchers("/items/view", "/categories/view").hasRole("BUYER")
 	        .antMatchers("/items/view", "/categories/view").hasRole("USER")
 	        .antMatchers("/sellerInventory/**").hasRole("SELLER")
 	        .antMatchers("/adminInventory/**").hasRole("ADMIN")
