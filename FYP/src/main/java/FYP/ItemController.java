@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -41,15 +40,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+
 /**
  * @author 21033239
  *
  */
 
-@Controller 
+@Controller
 public class ItemController {
-
-	
 
 	@Autowired
 	private ItemRepository itemRepository;
@@ -63,9 +61,16 @@ public class ItemController {
 	@GetMapping("/items")
 	public String viewItems(Model model) {
 
-		List<Item> listItems = itemRepository.findAll();
+		User loggedInUser = userRepository.getById(getLoggedInUserId());
 
-		model.addAttribute("listItems", listItems);
+		if (loggedInUser.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
+			List<Item> listItems = itemRepository.findAll();
+			model.addAttribute("listItems", listItems);
+		} else if (loggedInUser.getRole().equalsIgnoreCase("ROLE_SELLER")) {
+			// Find the items associated with the logged-in user
+			List<Item> listItems = itemRepository.findByUser(loggedInUser);
+			model.addAttribute("listItems", listItems);
+		}
 		return "view_items";
 	}
 
@@ -85,11 +90,9 @@ public class ItemController {
 
 		item.setImgName(imageName);
 
-		
-
 		User loggedInUser = userRepository.getById(getLoggedInUserId());
 		item.setUser(loggedInUser);
-		
+
 		Item savedItem = itemRepository.save(item);
 
 		try {
@@ -136,31 +139,41 @@ public class ItemController {
 	}
 
 	@PostMapping("/items/edit/{id}")
-	public String saveUpdatedItem(@PathVariable("id") Long id, Item item,
-			@RequestParam("itemImage") MultipartFile imgFile) {
-		String imageName = imgFile.getOriginalFilename();
+	public String saveUpdatedItem(@PathVariable("id") Long id, Item updatedItem,
+			@RequestParam(value = "itemImage", required = false) MultipartFile imgFile) {
+		Item existingItem = itemRepository.getById(id); // Retrieve the existing item
 
-		item.setImgName(imageName);
+		String imageName = imgFile != null && !imgFile.isEmpty() ? imgFile.getOriginalFilename()
+				: existingItem.getImgName();
+		updatedItem.setImgName(imageName); // Set the imgName to the existing image name if no new image is uploaded
 
 		User loggedInUser = userRepository.getById(getLoggedInUserId());
 		if (loggedInUser != null) {
-			item.setUser(loggedInUser);
+			if (!loggedInUser.getRole().equalsIgnoreCase("ROLE_ADMIN")) { // Check if the user is not an admin
+				updatedItem.setUser(loggedInUser);
+			} else {
+				updatedItem.setUser(existingItem.getUser()); // Set the original user if the user is an admin
+			}
+			updatedItem.setId(id); // Set the ID of the updated item
 
-			Item savedItem = itemRepository.save(item);
+			// Update the existing item with the updated fields
+			Item savedItem = itemRepository.save(updatedItem);
 
 			try {
-				String uploadDir = "uploads/items/" + savedItem.getId();
-				Path uploadPath = Paths.get(uploadDir);
-				System.out.println("Directory path: " + uploadPath);
+				if (imgFile != null && !imgFile.isEmpty()) {
+					String uploadDir = "uploads/items/" + savedItem.getId();
+					Path uploadPath = Paths.get(uploadDir);
+					System.out.println("Directory path: " + uploadPath);
 
-				if (!Files.exists(uploadPath)) {
-					Files.createDirectories(uploadPath);
+					if (!Files.exists(uploadPath)) {
+						Files.createDirectories(uploadPath);
+					}
+
+					Path fileToCreatePath = uploadPath.resolve(imageName);
+					System.out.println("File path: " + fileToCreatePath);
+
+					Files.copy(imgFile.getInputStream(), fileToCreatePath, StandardCopyOption.REPLACE_EXISTING);
 				}
-
-				Path fileToCreatePath = uploadPath.resolve(imageName);
-				System.out.println("File path: " + fileToCreatePath);
-
-				Files.copy(imgFile.getInputStream(), fileToCreatePath, StandardCopyOption.REPLACE_EXISTING);
 
 			} catch (IOException io) {
 				io.printStackTrace();
@@ -168,7 +181,6 @@ public class ItemController {
 
 			return "redirect:/items";
 		} else {
-
 			return "error";
 		}
 	}
@@ -191,61 +203,59 @@ public class ItemController {
 		}
 		return null;
 	}
-	
-	public class ImageModerationExample {
-	    public static void main(String[] args) throws Exception {
-	        // API endpoint and access token
-	        String apiEndpoint = "https://api.openai.com/v1/engines/davinci/moderate";
-	        String accessToken = "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";
-	        
-	        // Read and encode the image file
-	        String imagePath = "uploads/items/4";
-	        byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
-	        String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-	        
-	        // Construct the API request
-	        URL url = new URL(apiEndpoint);
-	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	        connection.setRequestMethod("POST");
-	        connection.setRequestProperty("Content-Type", "application/json");
-	        connection.setRequestProperty("Authorization", "Bearer " + accessToken);
-	        connection.setDoOutput(true);
-	        
-	        // Create the request body
-	        String requestBody = "{\"inputs\": [{\"data\": {\"image\": \"" + base64Image + "\"}}]}";
-	        
-	        // Send the request
-	        DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-	        outputStream.writeBytes(requestBody);
-	        outputStream.flush();
-	        outputStream.close();
-	        
-	        // Get the API response
-	        int responseCode = connection.getResponseCode();
-	        BufferedReader reader;
-	        if (responseCode == HttpURLConnection.HTTP_OK) {
-	            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-	        } else {
-	            reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-	        }
-	        
-	        // Parse and handle the response
-	        StringBuilder response = new StringBuilder();
-	        String line;
-	        while ((line = reader.readLine()) != null) {
-	            response.append(line);
-	        }
-	        reader.close();
-	        
-	        // Handle the moderation results
-	        String moderationResults = response.toString();
-	        // Implement your logic here to take appropriate actions based on the moderation results
-	        
-	        // Print the moderation results
-	        System.out.println(moderationResults);
-	    }
-	}
-	
-	
 
+	public class ImageModerationExample {
+		public static void main(String[] args) throws Exception {
+			// API endpoint and access token
+			String apiEndpoint = "https://api.openai.com/v1/engines/davinci/moderate";
+			String accessToken = "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";
+
+			// Read and encode the image file
+			String imagePath = "uploads/items/4";
+			byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
+			String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+			// Construct the API request
+			URL url = new URL(apiEndpoint);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+			connection.setDoOutput(true);
+
+			// Create the request body
+			String requestBody = "{\"inputs\": [{\"data\": {\"image\": \"" + base64Image + "\"}}]}";
+
+			// Send the request
+			DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+			outputStream.writeBytes(requestBody);
+			outputStream.flush();
+			outputStream.close();
+
+			// Get the API response
+			int responseCode = connection.getResponseCode();
+			BufferedReader reader;
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			} else {
+				reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+			}
+
+			// Parse and handle the response
+			StringBuilder response = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				response.append(line);
+			}
+			reader.close();
+
+			// Handle the moderation results
+			String moderationResults = response.toString();
+			// Implement your logic here to take appropriate actions based on the moderation
+			// results
+
+			// Print the moderation results
+			System.out.println(moderationResults);
+		}
+	}
 }
