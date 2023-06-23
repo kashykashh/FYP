@@ -1,35 +1,48 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" type="text/css">
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+	rel="stylesheet" type="text/css">
 <style>
-	.fa {
-		color: #ffffff;
-	}
+.fa {
+	color: #ffffff;
+}
 
-	.navbar-nav .nav-link:hover {
-		color: #ff6f00 !important;
-	}
+.navbar-nav .nav-link:hover {
+	color: #ff6f00 !important;
+}
 </style>
 <header>
-	<script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+	<script src='https://kit.fontawesome.com/a076d05399.js'
+		crossorigin='anonymous'></script>
 	<nav class="navbar navbar-expand-lg" style="background-color: #111320;">
-		<a class="navbar-brand" href="/"> <img src="/images/WorldBay-rmbg.png" width="25%" alt="company logo">
+		<a class="navbar-brand" href="/"> <img
+			src="/images/WorldBay-rmbg.png" width="25%" alt="company logo">
 			<span class="text-white ml-2">Welcome to WorldBay</span>
 		</a>
 
 		<!-- toggle button for mobile nav -->
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
-			aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="" role="button"><i class="fa fa-bars" aria-hidden="true" style="color: #e6e6ff"></i></span>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+			data-bs-target="#main-nav" aria-controls="main-nav"
+			aria-expanded="false" aria-label="Toggle navigation">
+			<span class="" role="button"><i class="fa fa-bars"
+				aria-hidden="true" style="color: #e6e6ff"></i></span>
 		</button>
 
 		<!-- navbar links -->
-		<div class="collapse navbar-collapse justify-content-end align-items-center" id="main-nav">
+		<div
+			class="collapse navbar-collapse justify-content-end align-items-center"
+			id="main-nav">
 			<ul class="navbar-nav">
 				<!--<li><a class="nav-link text-white" href="/transactionHistory">Hist</a></li>-->
 				<li><a class="nav-link text-white" href="/">Home</a></li>
-				<li><a class="nav-link text-white" href="/categories">Categories</a></li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+				<li
+					th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+					<a class="nav-link text-white" href="/categories">Categories</a>
+				</li>
+				<li
+					th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
 					<a class="nav-link text-white" href="/items">Items</a>
 				</li>
 				<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
@@ -42,20 +55,24 @@
 					<a class="nav-link text-white" href="/seller/top-selling-items">Top&nbspSelling</a>
 				</li>
 				<li><a class="nav-link text-white" href="/about">About</a></li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+				<li
+					th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
 					<a class="nav-link text-white"
-						th:href="${#authorization.expression('hasRole(''ADMIN'')') ? '/adminInventory' : '/sellerInventory'}">Inventory</a>
+					th:href="${#authorization.expression('hasRole(''ADMIN'')') ? '/adminInventory' : '/sellerInventory'}">Inventory</a>
 				</li>
 
-				<li><a class="fa fa-shopping-cart fa-lg nav-link text-white" style="transform:translateY(45%)"
-						href="/cart"></a></li>
+				<li
+					th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'') or hasRole(''BUYER'')')}"><a 
+					class="fa fa-shopping-cart fa-lg nav-link text-white"
+					style="transform: translateY(45%)" href="/cart"></a></li>
 
 				<!-- dropdown menu for authenticated users -->
 				<li sec:authorize="isAuthenticated()" class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button"
-						data-bs-toggle="dropdown" aria-expanded="false"> <span
-							sec:authentication="principal.username"></span>
-					</a>
+					<a class="nav-link dropdown-toggle text-white" href="#"
+					id="userDropdown" role="button" data-bs-toggle="dropdown"
+					aria-expanded="false"> <span
+						sec:authentication="principal.username"></span>
+				</a>
 
 					<ul class="dropdown-menu" aria-labelledby="userDropdown">
 						<li>
@@ -67,11 +84,12 @@
 				</li>
 
 				<!-- login and register links for non-authenticated users -->
-				<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
-						href="/login">Login</a></li>
-				<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
-						href="/register">Sign Up</a></li>
+				<li sec:authorize="!isAuthenticated()" class="nav-item"><a
+					class="nav-link text-white" href="/login">Login</a></li>
+				<li sec:authorize="!isAuthenticated()" class="nav-item"><a
+					class="nav-link text-white" href="/register">Sign Up</a></li>
 			</ul>
 		</div>
 	</nav>
-</header><br>
+</header>
+<br>
