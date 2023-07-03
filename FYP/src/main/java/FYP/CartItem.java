@@ -28,51 +28,61 @@ import javax.persistence.Transient;
 @Entity
 public class CartItem {
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+
 	private Long id;
 	@ManyToOne
-	@JoinColumn(name="user_id")
+	@JoinColumn(name = "user_id")
 	private User user;
-	
+
 	@ManyToOne
-	@JoinColumn(name="item_id")
+	@JoinColumn(name = "item_id")
 	private Item item;
 	private int quantity;
-	
+
 	private double subtotal;
-	
-	
+
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
 	public User getUser() {
 		return user;
 	}
+
 	public void setUser(User user) {
 		this.user = user;
 	}
+
 	public Item getItem() {
 		return item;
 	}
+
 	public void setItem(Item item) {
 		this.item = item;
 	}
+
 	public int getQuantity() {
 		return quantity;
 	}
+
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
+
 	public double getSubtotal() {
-		subtotal = item.getPrice() * quantity;
 		return subtotal;
 	}
+
 	public void setSubtotal(double subtotal) {
 		this.subtotal = subtotal;
 	}
-}
 
+	public void calculateSubtotal() {
+		this.subtotal = this.item.getPrice() * this.quantity;
+	}
+}

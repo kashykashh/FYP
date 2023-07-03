@@ -54,70 +54,48 @@ public class CartItemController {
 
 	@GetMapping("/cart")
 	public String showCart(Model model, Principal principal) {
-
-		// Get currently logged in user
 		UserDetail loggedInUser = (UserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Long loggedInUserId = loggedInUser.getUser().getId();
+		User user = loggedInUser.getUser();
+		Long loggedInUserId = user.getId();
 
 		model.addAttribute("userId", loggedInUserId);
 
-		// Get shopping cart items added by this user
-		// *Hint: You will need to use the method we added in the CartItemRepository
-		List<CartItem> cartItemList = cartItemRepo.findByUser_Id(loggedInUserId);
-		// Add the shopping cart items to the model
+		List<CartItem> cartItemList = cartItemRepo.findByUserId(loggedInUserId);
 		model.addAttribute("cartItemList", cartItemList);
 
-		int cartTotal = 0;
-		// Calculate the total cost of all items in the shopping cart
-		for (int i = 0; i < cartItemList.size(); i++) {
-			CartItem currentCartItem = cartItemList.get(i);
-			double price = currentCartItem.getItem().getPrice();
-			double subTotal = currentCartItem.getQuantity() * price;
-
-			currentCartItem.setSubtotal(subTotal);
-			cartTotal += subTotal;
+		for (CartItem cartItem : cartItemList) {
+			cartItem.calculateSubtotal();
 		}
-		// Add the shopping cart total to the model
+
+		double cartTotal = calculateCartTotal(cartItemList);
 		model.addAttribute("cartTotal", cartTotal);
+
 		return "cart";
 	}
 
 	@PostMapping("/cart/add/{itemId}")
 	public String addToCart(@PathVariable("itemId") Long itemId, @RequestParam("quantity") int quantity,
 			Principal principal) {
-
-		// Get currently logged in user
 		UserDetail loggedInUser = (UserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Long loggedInUserId = loggedInUser.getUser().getId();
-		// Check in the cartItemRepo if item was previously added by user.
-		// *Hint: we will need to write a new method in the CartItemRepository
-		CartItem cartItem = cartItemRepo.findByUserIdAndItemId(loggedInUserId, itemId);
+		User user = loggedInUser.getUser();
+		Long loggedInUserId = user.getId();
+
+		CartItem cartItem = cartItemRepo.findByUserAndItemId(user, itemId);
 
 		if (cartItem != null) {
-			// if the item was previously added, then we get the quantity that was
-			// previously added and increase that
-			// Save the CartItem object back to the repository
 			int cartItemQty = cartItem.getQuantity();
 			int totalQuantity = cartItemQty + quantity;
 			cartItem.setQuantity(totalQuantity);
-			// if the item was NOT previously added,
-			// then prepare the item and user objects
 			cartItemRepo.save(cartItem);
 		} else {
-			// Create a new CartItem object
 			Item item = itemRepo.getById(itemId);
 
-			User user = userRepo.getById(loggedInUserId);
-
-			CartItem newCartItem = new CartItem();
-
-			// Set the item and user as well as the new quantity in the new CartItem
-			// object
-			newCartItem.setItem(item);
-			newCartItem.setUser(user);
-			newCartItem.setQuantity(quantity);
-			// Save the new CartItem object to the repository
-			cartItemRepo.save(newCartItem);
+			cartItem = new CartItem();
+			cartItem.setItem(item);
+			cartItem.setUser(user);
+			cartItem.setQuantity(quantity);
+			cartItem.calculateSubtotal();
+			cartItemRepo.save(cartItem);
 		}
 
 		return "redirect:/cart";
@@ -129,7 +107,7 @@ public class CartItemController {
 		// Get cartItem object by cartItem's id
 		CartItem cartItem = cartItemRepo.getById(cartItemId);
 
-		// Set the quantity of the carItem object retrieved
+		// Set the quantity of the cartItem object retrieved
 		cartItem.setQuantity(qty);
 
 		// Save the cartItem back to the cartItemRepo
@@ -154,7 +132,7 @@ public class CartItemController {
 			@RequestParam("userId") Long userId, @RequestParam("orderId") String orderId,
 			@RequestParam("transactionId") String transactionId) {
 		// Retrieve cart items purchased
-		List<CartItem> cartItemList = cartItemRepo.findByUser_Id(userId);
+		List<CartItem> cartItemList = cartItemRepo.findByUserId(userId);
 
 		// Get user object
 		User currentUser = userRepo.getById(userId);
@@ -170,6 +148,7 @@ public class CartItemController {
 			int qtyInCart = currentCartItem.getQuantity();
 			int qtyToUpdate = qtyInventory - qtyInCart;
 			currentItem.setQuantity(qtyToUpdate);
+			System.out.println("The current quantity in the inventory is supposed to be" + qtyToUpdate);
 			itemRepo.save(currentItem);
 
 			// Update top selling item
@@ -198,9 +177,10 @@ public class CartItemController {
 
 			orderItemRepo.save(newOrderItem);
 
-			// clear cart items belonging to user
-			cartItemRepo.deleteById(currentCartItem.getId());
 		}
+		// clear cart items belonging to user
+		cartItemRepo.deleteAll(cartItemList);
+
 		// Pass info to view to display success page
 		model.addAttribute("transactionId", transactionId);
 		model.addAttribute("orderId", orderId);
@@ -212,8 +192,7 @@ public class CartItemController {
 		String to = currentUser.getEmail();
 		sendEmail(to, subject, body);
 
-		// Send email
-		return "success";
+		return "/success";
 	}
 
 	public void sendEmail(String to, String subject, String body) {
@@ -224,5 +203,14 @@ public class CartItemController {
 		System.out.println("Sending");
 		javaMailSender.send(msg);
 		System.out.println("Sent");
+	}
+
+	private double calculateCartTotal(List<CartItem> cartItemList) {
+		double cartTotal = 0;
+		for (CartItem cartItem : cartItemList) {
+			cartItem.calculateSubtotal();
+			cartTotal += cartItem.getSubtotal();
+		}
+		return cartTotal;
 	}
 }

@@ -1,0 +1,50 @@
+<div class="row m-3 border-bottom fw-bold">
+	<div id="paypal-button-container"></div>
+	<form th:action="@{/cart/process_order}" method="post" id="paypalForm">
+		<input type="hidden" name="cartTotal" id="formCartTotal" th:value="${cartTotal}">
+		<input type="hidden" name="memberId" id="memberId" th:value="${memberId}">
+		<input type="hidden" name="orderId" id="orderId">
+		<input type="hidden" name="transactionId" id="transactionId">
+		<input type="hidden" name="userId" th:value="${userId}">
+	</form>
+</div>
+
+<div class="row m-3 border-bottom fw-bold">
+	<div id="paypal-button-container2"></div>
+</div>
+
+<script
+	src="https://www.paypal.com/sdk/js?client-id=AWUBqgGChrfsk4-x6P7rg6sQY77GT8sW1PuCvgfk8c26ImRIk0NZnYuFuDJN--Ps5hpJEMcq9YTUGUJ0&currency=USD"></script>
+<script>
+	paypal.Buttons({
+		createOrder: function (data, actions) {
+			return actions.order.create({
+				purchase_units: [{
+					amount: {
+						currency_code: 'USD',
+						value: parseFloat(document.getElementById('formCartTotal').value)
+					}
+				}]
+			});
+		},
+
+		onApprove: function (data, actions) {
+			return actions.order.capture().then(function (details) {
+				var orderId = details.id;
+				var transactionId = details.purchase_units[0].payments.captures[0].id;
+				var completedBy = details.payer.name.given_name;
+
+				console.log('Transaction completed by ' + completedBy);
+				console.log("Order ID: " + orderId);
+				console.log("Transaction ID: " + transactionId);
+
+				// Set the form values
+				document.getElementById("orderId").value = orderId;
+				document.getElementById("transactionId").value = transactionId;
+
+				// Submit the form
+				document.getElementById("paypalForm").submit();
+			});
+		}
+	}).render('#paypal-button-container2');
+</script>
