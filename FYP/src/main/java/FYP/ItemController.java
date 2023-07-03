@@ -128,12 +128,14 @@ public class ItemController {
 
 	@GetMapping("/items/edit/{id}")
 	public String editItem(@PathVariable("id") Long id, Model model) {
-
 		Item item = itemRepository.getById(id);
 		model.addAttribute("item", item);
 
 		List<Category> catList = categoryRepository.findAll();
 		model.addAttribute("catList", catList);
+
+		Integer selectedDuration = item.isAdvertise() ? item.getDuration() : null;
+		model.addAttribute("selectedDuration", selectedDuration);
 
 		return "edit_item";
 	}

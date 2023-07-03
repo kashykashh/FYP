@@ -22,6 +22,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @author 21033239
  *
  */
+
 public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificationExecutor<Item> {
 
 	List<Item> findByNameContainingIgnoreCase(String name);
@@ -35,4 +36,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificat
 	List<Item> findByUserNameContainingIgnoreCase(String userName);
 
 	List<Item> findByUser(User user);
+
+	List<Item> findByAdvertiseTrue();
 }

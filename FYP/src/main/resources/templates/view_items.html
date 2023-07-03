@@ -22,6 +22,7 @@
 						<th>Quantity</th>
 						<th>Category</th>
 						<th>Item Image</th>
+						<th>Advertise</th>
 						<th>Action</th>
 					</tr>
 				</thead>
@@ -35,6 +36,9 @@
 							<td th:text="${item.category.name}"></td>
 							<td><img class="img-fluid" style="max-width: 100px; max-height: 100px;"
 									th:src="@{/uploads/items/{id}/{ImgName} (id = ${item.id}, ImgName = ${item.imgName})}">
+							</td>
+							<td>
+								<span th:text="${item.advertise ? 'Yes' : 'No'}"></span>
 							</td>
 							<td>
 								<div class="d-flex">

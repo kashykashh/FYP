@@ -20,12 +20,91 @@
 		.category-link:hover {
 			color: #ff6f00;
 		}
+
+		.advertisement-image {
+			width: 150px;
+			height: auto;
+			object-fit: contain;
+		}
+
+		.carousel-inner {
+			height: 250px;
+		}
+
+		.carousel-control-prev-icon,
+		.carousel-control-next-icon {
+			background-color: #333;
+			opacity: 0.8;
+		}
+
+		.carousel-control-prev,
+		.carousel-control-next {
+			width: 35px;
+			height: 35px;
+		}
+
+		.carousel-control-prev-icon:before,
+		.carousel-control-next-icon:before {
+			color: #fff;
+		}
+
+		.carousel-control-prev:hover,
+		.carousel-control-next:hover {
+			background-color: #555;
+		}
 	</style>
 </head>
 
 <body>
 	<div th:replace="fragments/navbarHeader"></div>
-	<!-- Existing code... -->
+
+	<div class="text-center mb-2">
+		<!-- Display Advertisements -->
+		<div class="advertisement-section">
+			<h2>Advertisements</h2>
+			<div id="advertisementCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+				<div class="carousel-inner">
+					<th:block th:each="item, status : ${advertisedItems}">
+						<div class="carousel-item" th:classappend="${status.index == 0} ? 'active'">
+							<div class="d-flex justify-content-center">
+								<div class="advertisement-item card">
+									<img th:src="@{/uploads/items/{id}/{imgpath}(id=${item.id}, imgpath=${item.imgName})}"
+										alt="Advertisement Image" class="advertisement-image card-img-top">
+									<div class="card-body">
+										<h5 class="advertisement-title card-title" th:text="${item.name}"></h5>
+										<p class="advertisement-description card-text" th:text="${item.description}">
+										</p>
+										<a th:href="@{/items/{id}(id=${item.id})}" class="btn btn-primary">View</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</th:block>
+				</div>
+				<button class="carousel-control-prev" type="button" data-bs-target="#advertisementCarousel"
+					data-bs-slide="prev">
+					<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+					<span class="visually-hidden">Previous</span>
+				</button>
+				<button class="carousel-control-next" type="button" data-bs-target="#advertisementCarousel"
+					data-bs-slide="next">
+					<span class="carousel-control-next-icon" aria-hidden="true"></span>
+					<span class="visually-hidden">Next</span>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// Enable carousel auto-cycling on page load
+		window.addEventListener('load', function () {
+			const carousel = document.getElementById('advertisementCarousel');
+			const carouselInstance = new bootstrap.Carousel(carousel, {
+				interval: 5000,
+				pause: 'hover'
+			});
+		});
+	</script>
 
 	<div class="text-center mt-4">
 		<div class="d-flex justify-content-center">
@@ -35,10 +114,6 @@
 			</th:block>
 		</div>
 	</div>
-
-
-	<!-- Existing code... -->
-
 
 	<div class="d-flex flex-wrap justify-content-center mb-3">
 		<th:block th:each="item:${listItems}">

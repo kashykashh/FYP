@@ -39,6 +39,8 @@ public class Item {
 	private double price;
 	private int quantity;
 	private String imgName;
+	private boolean advertise;
+	private Integer duration;
 
 	@Column(name = "previous_quantity", nullable = false, columnDefinition = "INT DEFAULT 0")
 	private Integer previousQuantity;
@@ -142,5 +144,21 @@ public class Item {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public boolean isAdvertise() {
+		return advertise;
+	}
+
+	public void setAdvertise(boolean advertise) {
+		this.advertise = advertise;
+	}
+
+	public Integer getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Integer duration) {
+		this.duration = duration;
 	}
 }

@@ -29,22 +29,26 @@ public class fypHomeController {
 
 	@Autowired
 	private ItemRepository itemRepository;
-	
+
 	@Autowired
 	private CategoryRepository categoryRepository;
 
 	@GetMapping("/")
 	public String home(Model model) {
 		List<Item> listItems = itemRepository.findAll();
-	    List<Category> listCategories = categoryRepository.findAll();
+		List<Category> listCategories = categoryRepository.findAll();
 		model.addAttribute("listItems", listItems);
-	    model.addAttribute("listCategories", listCategories);
+		model.addAttribute("listCategories", listCategories);
+
+		List<Item> advertisedItems = itemRepository.findByAdvertiseTrue();
+		model.addAttribute("advertisedItems", advertisedItems);
 
 		return "index";
 	}
 
 	@GetMapping("/403")
-	public String error403() {
+	public String error403(Model model) {
+		model.addAttribute("errorMessage", "Oops! Access Denied.");
 		return "403";
 	}
 }
