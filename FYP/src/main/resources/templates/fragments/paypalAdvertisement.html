@@ -115,6 +115,8 @@
 		showPaymentSuccessMessage();
 		addItemButton.disabled = false;
 		durationSelect.disabled = true;
+		advertiseCheckbox.parentElement.style.display = "none";
+		document.getElementById("advertise-label").style.display = "none";
 	}
 
 	function showPaymentSuccessMessage() {
@@ -132,6 +134,11 @@
 			addItemButton.disabled = true;
 		} else {
 			addItemButton.disabled = false;
+			const advertiseCheckbox = document.getElementById("item_advertise");
+			if (advertiseCheckbox.checked) {
+				advertiseCheckbox.value = "true";
+			}
+			form.submit();
 		}
 	});
 
