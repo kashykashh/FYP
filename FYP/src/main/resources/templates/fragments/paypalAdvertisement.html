@@ -1,0 +1,153 @@
+<script>
+	const priceInput = document.getElementById("item_price");
+	const quantityInput = document.getElementById("item_quantity");
+	const advertiseCheckbox = document.getElementById("item_advertise");
+	const durationSelect = document.getElementById("duration");
+	const advertiseFeeSpan = document.getElementById("advertise_fee");
+	const addItemButton = document.getElementById("addItemButton");
+	const paymentContainer = document.getElementById("advertise-fee");
+	const paypalButtonContainer = document.getElementById("paypal-button-container");
+
+	let orderAmount = 0;
+	let paymentCompleted = false;
+	let paypalButtons = null;
+	advertiseCheckbox.disabled = true;
+
+	[priceInput, quantityInput].forEach((input) => {
+		input.addEventListener("input", checkAdvertiseCheckbox);
+	});
+
+	function checkAdvertiseCheckbox() {
+		const price = parseFloat(priceInput.value);
+		const quantity = parseInt(quantityInput.value);
+
+		if (!isNaN(price) && !isNaN(quantity) && price > 0 && quantity > 0) {
+			advertiseCheckbox.disabled = false;
+			document.getElementById("validation-notice").style.display = "none";
+		} else {
+			advertiseCheckbox.disabled = true;
+			advertiseCheckbox.checked = false;
+			durationSelect.disabled = true;
+			durationSelect.value = "";
+			advertiseFeeSpan.textContent = "";
+			paymentContainer.style.display = "none";
+			document.getElementById("validation-notice").style.display = "block";
+		}
+
+		calculateAdvertiseFee();
+	}
+
+	advertiseCheckbox.addEventListener("change", function () {
+		if (advertiseCheckbox.checked) {
+			document.getElementById("advertise-duration").style.display = "block";
+			durationSelect.disabled = false;
+			addItemButton.disabled = true;
+			calculateAdvertiseFee();
+		} else {
+			document.getElementById("advertise-duration").style.display = "none";
+			durationSelect.disabled = true;
+			addItemButton.disabled = false;
+			durationSelect.value = "";
+			advertiseFeeSpan.textContent = "";
+			paymentContainer.style.display = "none";
+		}
+	});
+
+	durationSelect.addEventListener("change", function () {
+		calculateAdvertiseFee();
+	});
+
+	function calculateAdvertiseFee() {
+		const duration = parseInt(durationSelect.value);
+		const quantity = parseInt(quantityInput.value);
+		const price = parseFloat(priceInput.value);
+
+		if (!isNaN(quantity) && !isNaN(price) && !isNaN(duration) && duration > 0) {
+			const fee = (quantity * duration) / 31;
+			advertiseFeeSpan.textContent = "$" + fee.toFixed(2);
+			orderAmount = fee.toFixed(2);
+			paymentContainer.style.display = "block";
+			renderPaypalButtons();
+		} else {
+			advertiseFeeSpan.textContent = "";
+			orderAmount = 0;
+			paymentContainer.style.display = "none";
+			removePaypalButtons();
+		}
+	}
+
+	function renderPaypalButtons() {
+		if (!paypalButtons) {
+			paypalButtons = paypal.Buttons({
+				createOrder: function (data, actions) {
+					return actions.order.create({
+						purchase_units: [
+							{
+								amount: {
+									currency_code: "USD",
+									value: parseFloat(orderAmount),
+								},
+							},
+						],
+					});
+				},
+				onApprove: function (data, actions) {
+					// Capture the funds and complete the advertisement process
+					handlePaymentCompletion(data.orderID);
+				},
+			});
+
+			paypalButtons.render("#paypal-button-container");
+			paypalButtonContainer.style.display = "block"; // Show the container after rendering buttons
+		} else {
+			paypalButtonContainer.style.display = "block"; // Show the container if buttons already exist
+		}
+	}
+
+	function removePaypalButtons() {
+		paypalButtonContainer.innerHTML = ""; // Clear the container to remove the buttons
+		paypalButtonContainer.style.display = "none";
+	}
+
+	function handlePaymentCompletion(orderId) {
+		paymentCompleted = true;
+		removePaypalButtons();
+		showPaymentSuccessMessage();
+		addItemButton.disabled = false;
+		durationSelect.disabled = true;
+	}
+
+	function showPaymentSuccessMessage() {
+		const successMessage = document.getElementById("paymentSuccessMessage");
+		successMessage.textContent = "Payment completed successfully.";
+		successMessage.style.display = "block";
+	}
+
+	const form = document.querySelector("form");
+
+	form.addEventListener("submit", function (event) {
+		event.preventDefault();
+
+		if (!paymentCompleted) {
+			addItemButton.disabled = true;
+		} else {
+			addItemButton.disabled = false;
+		}
+	});
+
+	function enableAddItemButton() {
+		const price = parseFloat(document.getElementById("item_price").value);
+		const quantity = parseInt(document.getElementById("item_quantity").value);
+		const paymentCompleted =
+			document.getElementById("paymentStatusContainer").style.display === "block";
+
+		if (!isNaN(price) && !isNaN(quantity) && price > 0 && quantity > 0 && paymentCompleted) {
+			addItemButton.disabled = false;
+		} else {
+			addItemButton.disabled = true;
+		}
+	}
+
+	document.getElementById("item_price").addEventListener("input", enableAddItemButton);
+	document.getElementById("item_quantity").addEventListener("input", enableAddItemButton);
+</script>

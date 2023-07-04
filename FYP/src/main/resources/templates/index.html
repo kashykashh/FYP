@@ -68,9 +68,11 @@
 						<div class="carousel-item" th:classappend="${status.index == 0} ? 'active'">
 							<div class="d-flex justify-content-center">
 								<div class="advertisement-item card">
-									<img th:src="@{/uploads/items/{id}/{imgpath}(id=${item.id}, imgpath=${item.imgName})}"
-										alt="Advertisement Image" class="advertisement-image card-img-top">
 									<div class="card-body">
+										<a th:href="@{/items/{id}(id=${item.id})}">
+											<img th:src="@{/uploads/items/{id}/{imgpath}(id=${item.id}, imgpath=${item.imgName})}"
+												alt="Advertisement Image" class="advertisement-image card-img-top">
+										</a>
 										<h5 class="advertisement-title card-title" th:text="${item.name}"></h5>
 										<p class="advertisement-description card-text" th:text="${item.description}">
 										</p>
