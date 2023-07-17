@@ -12,7 +12,6 @@
  */
 package FYP;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
  * @author 21033239
  *
  */
+
 @Service
 public class UserService {
 
@@ -85,10 +85,4 @@ public class UserService {
 	public User getUserByResetToken(String resetToken) {
 		return userRepository.findByResetToken(resetToken);
 	}
-	
-
-
-	
-	
-	
 }

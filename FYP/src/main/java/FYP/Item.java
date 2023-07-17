@@ -41,6 +41,7 @@ public class Item {
 	private String imgName;
 	private boolean advertise;
 	private Integer duration;
+	private String currency;
 
 	@Column(name = "previous_quantity", nullable = false, columnDefinition = "INT DEFAULT 0")
 	private Integer previousQuantity;
@@ -160,5 +161,13 @@ public class Item {
 
 	public void setDuration(Integer duration) {
 		this.duration = duration;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
 	}
 }

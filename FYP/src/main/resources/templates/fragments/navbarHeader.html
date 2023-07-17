@@ -1,82 +1,155 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+<!DOCTYPE html>
+<html>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" type="text/css">
-<style>
-	.fa {
-		color: #ffffff;
-	}
+<head>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"
+		type="text/css">
+	<style>
+		.fa {
+			color: #ffffff;
+		}
 
-	.navbar-nav .nav-link:hover {
-		color: #ff6f00 !important;
-	}
-</style>
-<header>
-	<script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
-	<nav class="navbar navbar-expand-lg" style="background-color: #111320;">
-		<a class="navbar-brand" href="/"> <img src="/images/WorldBay-rmbg.png" width="25%" alt="company logo">
-			<span class="text-white ml-2">Welcome to WorldBay</span>
-		</a>
+		.navbar-nav .nav-link:hover {
+			color: #ff6f00 !important;
+		}
+	</style>
+</head>
 
-		<!-- toggle button for mobile nav -->
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
-			aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="" role="button"><i class="fa fa-bars" aria-hidden="true" style="color: #e6e6ff"></i></span>
-		</button>
+<body>
+	<header>
+		<nav class="navbar navbar-expand-lg" style="background-color: #111320;">
+			<a class="navbar-brand" href="/"> <img src="/images/WorldBay-rmbg.png" width="25%" alt="company logo">
+				<span class="text-white ml-2">Welcome to WorldBay</span>
+			</a>
 
-		<!-- navbar links -->
-		<div class="collapse navbar-collapse justify-content-end align-items-center" id="main-nav">
-			<ul class="navbar-nav">
-				<!--<li><a class="nav-link text-white" href="/transactionHistory">Hist</a></li>-->
-				<li><a class="nav-link text-white" href="/">Home</a></li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
-					<a class="nav-link text-white" href="/categories">Categories</a>
-				</li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
-					<a class="nav-link text-white" href="/items">Items</a>
-				</li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
-					<a class="nav-link text-white" href="/user">Users</a>
-				</li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
-					<a class="nav-link text-white" href="/admin/top-selling-items">Top&nbspSelling</a>
-				</li>
-				<li th:if="${#authorization.expression('hasRole(''SELLER'')')}">
-					<a class="nav-link text-white" href="/seller/top-selling-items">Top&nbspSelling</a>
-				</li>
-				<li><a class="nav-link text-white" href="/about">About</a></li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
-					<a class="nav-link text-white"
-						th:href="${#authorization.expression('hasRole(''ADMIN'')') ? '/adminInventory' : '/sellerInventory'}">Inventory</a>
-				</li>
+			<!-- toggle button for mobile nav -->
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
+				aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="" role="button"><i class="fa fa-bars" aria-hidden="true" style="color: #e6e6ff"></i></span>
+			</button>
 
-				<li
-					th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'') or hasRole(''BUYER'')')}">
-					<a class="fa fa-shopping-cart fa-lg nav-link text-white" style="transform: translateY(45%)"
-						href="/cart"></a></li>
+			<!-- navbar links -->
+			<div class="collapse navbar-collapse justify-content-end align-items-center" id="main-nav">
+				<ul class="navbar-nav">
+					<!--<li><a class="nav-link text-white" href="/transactionHistory">Hist</a></li>-->
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle text-white" href="#" id="currencyDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							Currency: <span id="selectedCurrency">SGD</span>
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="currencyDropdown" id="currencyList"></ul>
+					</li>
+					<li><a class="nav-link text-white" href="/">Home</a></li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+						<a class="nav-link text-white" href="/categories">Categories</a>
+					</li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+						<a class="nav-link text-white" href="/items">Items</a>
+					</li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+						<a class="nav-link text-white" href="/user">Users</a>
+					</li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+						<a class="nav-link text-white" href="/admin/top-selling-items">Top&nbspSelling</a>
+					</li>
+					<li th:if="${#authorization.expression('hasRole(''SELLER'')')}">
+						<a class="nav-link text-white" href="/seller/top-selling-items">Top&nbspSelling</a>
+					</li>
+					<li><a class="nav-link text-white" href="/about">About</a></li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+						<a class="nav-link text-white"
+							th:href="${#authorization.expression('hasRole(''ADMIN'')') ? '/adminInventory' : '/sellerInventory'}">Inventory</a>
+					</li>
 
-				<!-- dropdown menu for authenticated users -->
-				<li sec:authorize="isAuthenticated()" class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button"
-						data-bs-toggle="dropdown" aria-expanded="false"> <span
-							sec:authentication="principal.username"></span>
-					</a>
+					<li
+						th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'') or hasRole(''BUYER'')')}">
+						<a class="fa fa-shopping-cart fa-lg nav-link text-white" style="transform: translateY(45%)"
+							href="/cart"></a>
+					</li>
 
-					<ul class="dropdown-menu" aria-labelledby="userDropdown">
-						<li>
-							<form th:action="@{/logout}" method="post">
-								<button class="dropdown-item" type="submit">Logout</button>
-							</form>
-						</li>
-					</ul>
-				</li>
+					<!-- dropdown menu for authenticated users -->
+					<li sec:authorize="isAuthenticated()" class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false"> <span
+								sec:authentication="principal.username"></span>
+						</a>
 
-				<!-- login and register links for non-authenticated users -->
-				<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
-						href="/login">Login</a></li>
-				<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
-						href="/register">Sign Up</a></li>
-			</ul>
-		</div>
-	</nav>
-</header>
-<br>
+						<ul class="dropdown-menu" aria-labelledby="userDropdown">
+							<li>
+								<form th:action="@{/logout}" method="post">
+									<button class="dropdown-item" type="submit">Logout</button>
+								</form>
+							</li>
+						</ul>
+					</li>
+
+					<!-- login and register links for non-authenticated users -->
+					<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
+							href="/login">Login</a></li>
+					<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
+							href="/register">Sign Up</a></li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<br>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha2/js/bootstrap.min.js"></script>
+
+	<script>
+		// Function to retrieve the user's IP address
+		function getIPAddress() {
+			return $.getJSON('https://api.ipify.org?format=json');
+		}
+
+		// Function to get the currency based on the user's IP address
+		function getCurrencyByIP() {
+			return $.getJSON('https://ipapi.co/json/');
+		}
+
+		// Function to update the selected currency
+		function updateSelectedCurrency(currency) {
+			var selectedCurrencyElement = document.getElementById("selectedCurrency");
+			selectedCurrencyElement.textContent = currency;
+		}
+
+		// Function to change the currency
+		function changeCurrency(currency) {
+			updateSelectedCurrency(currency);
+			// Perform any additional actions when the currency changes
+			// For example, you could update the prices on the page.
+			// ...
+		}
+
+		// Function to handle the AJAX request success
+		function handleSuccess(response) {
+			console.log(response);
+			var currency = response.currency; // Extract the currency from the response
+			changeCurrency(currency); // Set the currency as the selected currency
+		}
+
+		// Function to handle the AJAX request error
+		function handleError(xhr, status, error) {
+			console.error(error);
+		}
+
+		// On page load, retrieve the user's IP address and get the currency based on the IP
+		$(document).ready(function () {
+			getIPAddress()
+				.done(function (data) {
+					// Retrieve the user's IP address
+					var ipAddress = data.ip;
+
+					// Make an AJAX request to get the currency based on the user's IP address
+					getCurrencyByIP()
+						.done(handleSuccess)
+						.fail(handleError);
+				})
+				.fail(handleError);
+		});
+	</script>
+</body>
+
+</html>
