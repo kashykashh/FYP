@@ -38,6 +38,10 @@ public class User {
 	private String resetToken;
 	private String deletedBy;
 	private Date deletedAt;
+    private int moderationFailures; // New field to track moderation failures
+    private boolean banned; // To indicate whether the user is banned or not
+
+
 	
 	
 	@OneToMany(mappedBy="user")
@@ -97,4 +101,20 @@ public class User {
 	public void setDeletedAt(Date deletedAt) {
 		this.deletedAt = deletedAt;
 	}
+	
+	public int getModerationFailures() {
+        return moderationFailures;
+    }
+
+    public void setModerationFailures(int moderationFailures) {
+        this.moderationFailures = moderationFailures;
+    }
+    
+    public boolean isBanned() {
+        return banned;
+    }
+
+    public void setBanned(boolean banned) {
+        this.banned = banned;
+    }
 }
