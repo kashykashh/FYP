@@ -48,6 +48,9 @@
 						<div class="card-body">
 							<h1 th:text="${item.name}"></h1>
 							<h5 th:text="${item.category.name}"></h5>
+							Seller: <a th:href="@{/seller/{sellerId}(sellerId=${item.user.id})}">
+								<span th:text="${item.user.name}"></span>
+							</a>
 							<p><span th:text="${item.description}"></span></p>
 							<p>$<span th:text="${item.price}"></span></p>
 							<p>Quantity available: <span th:text="${item.quantity}"></span></p>

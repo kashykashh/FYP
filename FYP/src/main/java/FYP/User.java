@@ -41,9 +41,6 @@ public class User {
     private int moderationFailures; // New field to track moderation failures
     private boolean banned; // To indicate whether the user is banned or not
 
-
-	
-	
 	@OneToMany(mappedBy="user")
     private List<Item> items;
 	

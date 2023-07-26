@@ -38,4 +38,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificat
 	List<Item> findByUser(User user);
 
 	List<Item> findByAdvertiseTrue();
+	
+	List<Item> findByUserId(Long userId);
 }

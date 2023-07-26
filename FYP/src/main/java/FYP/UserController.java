@@ -38,6 +38,9 @@ public class UserController {
 	private UserRepository userRepository;
 
 	@Autowired
+	private ItemRepository itemRepository;
+
+	@Autowired
 	private UserService userService;
 
 	@GetMapping("/user")

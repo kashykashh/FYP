@@ -7,27 +7,23 @@
  * Student Name: Parveer Singh
  * Student ID: 21033239
  * Class: E63C
- * Date created: 2023-Jan-18 6:49:43 PM
+ * Date created: 2023-Jul-27 12:43:07 AM
 
  */
 package FYP;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author 21033239
  *
  */
-public interface UserRepository extends JpaRepository<User, Long> {
 
-	public User findByUsername(String username);
+@Repository
+public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-	public User getById(Long loggedInUserId);
-
-	public User findByName(String userName);
-
-	public User findByEmail(String email);
-
-	public User findByResetToken(String resetToken);
-
+	List<Review> findBySellerId(Long sellerId);
 }
