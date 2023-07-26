@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,46 +80,46 @@ public class UserController {
 	}
 
 	@PostMapping("/user/edit/{id}")
-	public String saveUpdatedUser(@PathVariable("id") Long id, User user,
+	public String saveUpdatedUser(@PathVariable("id") Long id, User editedUser,
 			@RequestParam("selectedRole") String selectedRole) {
-
 		User existingUser = userRepository.getById(id);
 
-		user.setUsername(existingUser.getUsername());
-		user.setEmail(existingUser.getEmail());
-		user.setPassword(existingUser.getPassword());
+		existingUser.setUsername(editedUser.getUsername());
+		existingUser.setEmail(editedUser.getEmail());
 
-		if (selectedRole.equals("buyer")) {
-			userService.saveUserWithBuyerRole(user);
-		} else if (selectedRole.equals("seller")) {
-			userService.saveUserWithSellerRole(user);
-		} else if (selectedRole.equals("admin")) {
-			userService.saveUserWithAdminRole(user);
-		} else if (selectedRole.isEmpty()) {
-			// Do nothing
+		// Check if the password has changed
+		if (editedUser.getPassword() != null && !editedUser.getPassword().isEmpty()
+				&& !editedUser.getPassword().equals(existingUser.getPassword())) {
+			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+			String encodedPassword = encoder.encode(editedUser.getPassword());
+			existingUser.setPassword(encodedPassword);
 		}
 
-		userRepository.save(user);
+		// Update the role only if it has changed
+		if (!selectedRole.equals(existingUser.getRole())) {
+			if (selectedRole.equals("buyer")) {
+				userService.saveUserWithBuyerRole(existingUser);
+			} else if (selectedRole.equals("seller")) {
+				userService.saveUserWithSellerRole(existingUser);
+			} else if (selectedRole.equals("admin")) {
+				userService.saveUserWithAdminRole(existingUser);
+			}
+			// Handle other cases if necessary
+		}
+
+		userRepository.save(existingUser);
 		return "redirect:/user";
 	}
 
-//	@GetMapping("/user/delete/{id}")
-//	public String deleteUser(@PathVariable("id") Long id) {
-//
-//		userRepository.deleteById(id);
-//
-//		return "redirect:/user";
-//	}
 	@GetMapping("/user/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id, Authentication authentication) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user != null) {
-            String deletedBy = authentication.getName(); // Get the username of the logged-in admin
-            user.setDeletedBy(deletedBy);
-            user.setDeletedAt(new Date());
-            userRepository.save(user);
-        }
-        return "redirect:/user";
-    }
-	
+	public String deleteUser(@PathVariable("id") Long id, Authentication authentication) {
+		User user = userRepository.findById(id).orElse(null);
+		if (user != null) {
+			String deletedBy = authentication.getName(); // Get the username of the logged-in admin
+			user.setDeletedBy(deletedBy);
+			user.setDeletedAt(new Date());
+			userRepository.save(user);
+		}
+		return "redirect:/user";
+	}
 }
