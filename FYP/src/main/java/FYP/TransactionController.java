@@ -34,7 +34,7 @@ public class TransactionController {
 
 	@Autowired
 	private OrderItemService orderItemService;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
@@ -68,41 +68,41 @@ public class TransactionController {
 		return "viewUserTransactions";
 	}
 
-//	@GetMapping("/transactionHistory")
-//	public String showTransactionHistory(Model model) {
-//		List<OrderItem> orderItems = orderItemService.retrieveOrderItems();
-//
-//		// Retrieve only the orderItem.orderId values and store them in a separate list
-//		List<String> orderItemIds = orderItems.stream().map(OrderItem::getOrderId).collect(Collectors.toList());
-//
-//		model.addAttribute("OrderItemList", orderItems);
-//		model.addAttribute("orderItemIds", orderItemIds);
-//		return "transactionHistory";
-//	}
-//
-//	@GetMapping("/transactionSuccess")
-//	public String showTransactionSuccess(@RequestParam("orderId") String orderId, Model model) {
-//	    // Get the current timestamp
-//	    Date timestamp = new Date();
-//
-//	    OrderItem orderItem = new OrderItem();
-//	    orderItem.setOrderId(orderId);
-//	    orderItem.setTimestamp(timestamp);
-//
-//	    orderItemRepository.save(orderItem);
-//
-//	    model.addAttribute("orderId", orderId);
-//	    model.addAttribute("timestamp", timestamp);
-//
-//	    return "success";
-//	}
-//
-//	@GetMapping("/success")
-//	public String showSuccessPage(Model model) {
-//	    OrderItem orderItem = orderItemService.retrieveOrderItemWithTimestamp();
-//
-//	    model.addAttribute("orderItem", orderItem);
-//
-//	    return "success";
-//	}
+	@GetMapping("/purchaseHistory")
+	public String showPurchaseHistory(Model model) {
+		List<OrderItem> orderItems = orderItemService.retrieveOrderItems();
+
+		// Retrieve only the orderItem.orderId values and store them in a separate list
+		List<String> orderItemIds = orderItems.stream().map(OrderItem::getOrderId).collect(Collectors.toList());
+
+		model.addAttribute("OrderItemList", orderItems);
+		model.addAttribute("orderItemIds", orderItemIds);
+		return "purchaseHistory";
+	}
+
+	@GetMapping("/transactionSuccess")
+	public String showTransactionSuccess(@RequestParam("orderId") String orderId, Model model) {
+		// Get the current timestamp
+		Date timestamp = new Date();
+
+		OrderItem orderItem = new OrderItem();
+		orderItem.setOrderId(orderId);
+		orderItem.setTimestamp(timestamp);
+
+		orderItemRepository.save(orderItem);
+
+		model.addAttribute("orderId", orderId);
+		model.addAttribute("timestamp", timestamp);
+
+		return "success";
+	}
+
+	@GetMapping("/success")
+	public String showSuccessPage(Model model) {
+		OrderItem orderItem = orderItemService.retrieveOrderItemWithTimestamp();
+
+		model.addAttribute("orderItem", orderItem);
+
+		return "success";
+	}
 }

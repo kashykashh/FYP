@@ -1,82 +1,220 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+<!DOCTYPE html>
+<html>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" type="text/css">
-<style>
-	.fa {
-		color: #ffffff;
-	}
+<head>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"
+		type="text/css">
+	<style>
+		.fa {
+			color: #ffffff;
+		}
 
-	.navbar-nav .nav-link:hover {
-		color: #ff6f00 !important;
-	}
-</style>
-<header>
-	<script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
-	<nav class="navbar navbar-expand-lg" style="background-color: #111320;">
-		<a class="navbar-brand" href="/"> <img src="/images/WorldBay-rmbg.png" width="25%" alt="company logo">
-			<span class="text-white ml-2">Welcome to WorldBay</span>
-		</a>
+		.navbar-nav .nav-link:hover {
+			color: #ff6f00 !important;
+		}
+	</style>
+</head>
 
-		<!-- toggle button for mobile nav -->
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
-			aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="" role="button"><i class="fa fa-bars" aria-hidden="true" style="color: #e6e6ff"></i></span>
-		</button>
+<body>
+	<header>
+		<nav class="navbar navbar-expand-lg" style="background-color: #111320;">
+			<a class="navbar-brand" href="/"> <img src="/images/WorldBay-rmbg.png" width="25%" alt="company logo">
+				<span class="text-white ml-2">Welcome to WorldBay</span>
+			</a>
 
-		<!-- navbar links -->
-		<div class="collapse navbar-collapse justify-content-end align-items-center" id="main-nav">
-			<ul class="navbar-nav">
-				<!--<li><a class="nav-link text-white" href="/transactionHistory">Hist</a></li>-->
-				<li><a class="nav-link text-white" href="/">Home</a></li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
-					<a class="nav-link text-white" href="/categories">Categories</a>
-				</li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
-					<a class="nav-link text-white" href="/items">Items</a>
-				</li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
-					<a class="nav-link text-white" href="/user">Users</a>
-				</li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
-					<a class="nav-link text-white" href="/admin/top-selling-items">Top&nbspSelling</a>
-				</li>
-				<li th:if="${#authorization.expression('hasRole(''SELLER'')')}">
-					<a class="nav-link text-white" href="/seller/top-selling-items">Top&nbspSelling</a>
-				</li>
-				<li><a class="nav-link text-white" href="/about">About</a></li>
-				<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
-					<a class="nav-link text-white"
-						th:href="${#authorization.expression('hasRole(''ADMIN'')') ? '/adminInventory' : '/sellerInventory'}">Inventory</a>
-				</li>
+			<!-- toggle button for mobile nav -->
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
+				aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="" role="button"><i class="fa fa-bars" aria-hidden="true" style="color: #e6e6ff"></i></span>
+			</button>
 
-				<li
-					th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'') or hasRole(''BUYER'')')}">
-					<a class="fa fa-shopping-cart fa-lg nav-link text-white" style="transform: translateY(45%)"
-						href="/cart"></a></li>
+			<!-- navbar links -->
+			<div class="collapse navbar-collapse justify-content-end align-items-center" id="main-nav">
+				<ul class="navbar-nav">
 
-				<!-- dropdown menu for authenticated users -->
-				<li sec:authorize="isAuthenticated()" class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button"
-						data-bs-toggle="dropdown" aria-expanded="false"> <span
-							sec:authentication="principal.username"></span>
-					</a>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle text-white" href="#" id="currencyDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							Currency: <span id="selectedCurrency">SGD</span>
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="currencyDropdown" id="currencyList">
+							<li><a class="dropdown-item" href="#" onclick="changeCurrency('SGD')">SGD</a></li>
+							<li><a class="dropdown-item" href="#" onclick="changeCurrency('USD')">USD</a></li>
+							<li><a class="dropdown-item" href="#" onclick="changeCurrency('EUR')">EUR</a></li>
+							<li><a class="dropdown-item" href="#" onclick="changeCurrency('JPY')">JPY</a></li>
+						</ul>
+					</li>
 
-					<ul class="dropdown-menu" aria-labelledby="userDropdown">
-						<li>
-							<form th:action="@{/logout}" method="post">
-								<button class="dropdown-item" type="submit">Logout</button>
-							</form>
-						</li>
-					</ul>
-				</li>
+					<li><a class="nav-link text-white" href="/">Home</a></li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+						<a class="nav-link text-white" href="/categories">Categories</a>
+					</li>
 
-				<!-- login and register links for non-authenticated users -->
-				<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
-						href="/login">Login</a></li>
-				<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
-						href="/register">Sign Up</a></li>
-			</ul>
-		</div>
-	</nav>
-</header>
-<br>
+					<li><a class="nav-link text-white" href="/transactionHistory">Hist</a></li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+						<a class="nav-link text-white" href="/items">Items</a>
+					</li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+						<a class="nav-link text-white" href="/user">Users</a>
+					</li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+						<a class="nav-link text-white" href="/admin/top-selling-items-sellerList">Top&nbspSelling</a>
+					</li>
+					<li th:if="${#authorization.expression('hasRole(''SELLER'')')}">
+						<a class="nav-link text-white" href="/seller/top-selling-items">Top&nbspSelling</a>
+					</li>
+					<li><a class="nav-link text-white" href="/about">About</a></li>
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+						<a class="nav-link text-white"
+							th:href="${#authorization.expression('hasRole(''ADMIN'')') ? '/adminInventory' : '/sellerInventory'}">Inventory</a>
+					</li>
+
+					<li
+						th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'') or hasRole(''BUYER'')')}">
+						<a class="fa fa-shopping-cart fa-lg nav-link text-white" style="transform: translateY(45%)"
+							href="/cart"></a>
+					</li>
+
+					<!-- dropdown menu for authenticated users -->
+					<li sec:authorize="isAuthenticated()" class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false"> <span
+								sec:authentication="principal.username"></span>
+						</a>
+
+						<ul class="dropdown-menu" aria-labelledby="userDropdown">
+							<li>
+								<form th:action="@{/logout}" method="post">
+									<button class="dropdown-item" type="submit">Logout</button>
+								</form>
+							</li>
+						</ul>
+					</li>
+
+					<!-- login and register links for non-authenticated users -->
+					<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
+							href="/login">Login</a></li>
+					<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
+							href="/register">Sign Up</a></li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<br>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha2/js/bootstrap.min.js"></script>
+
+	<script>
+		// Function to retrieve the user's IP address
+		function getIPAddress() {
+			return $.getJSON('https://api.ipify.org?format=json');
+		}
+
+		// Function to get the currency based on the user's IP address
+		function getCurrencyByIP() {
+			return $.getJSON('https://ipapi.co/json/');
+		}
+
+		// Function to update the selected currency
+		function updateSelectedCurrency(currency) {
+			var selectedCurrencyElement = document.getElementById("selectedCurrency");
+			selectedCurrencyElement.textContent = currency;
+		}
+
+		// Function to change the currency
+		function changeCurrency(currency) {
+			updateSelectedCurrency(currency);
+			// Save the selected currency in the backend (send a POST request to the server)
+			$.ajax({
+				type: "POST",
+				url: "/setCurrency",
+				data: JSON.stringify({currency: currency}),
+				contentType: "application/json",
+				success: function (response) {
+					console.log("Currency set to: " + currency);
+					// Convert prices to the selected currency after updating the currency
+					convertPricesToCurrency(currency);
+				},
+				error: function (xhr, status, error) {
+					console.error(error);
+				}
+			});
+		}
+
+		// Function to handle the AJAX request success
+		function handleSuccess(response) {
+			console.log(response);
+			var currency = response.currency; // Extract the currency from the response
+			changeCurrency(currency); // Set the currency as the selected currency
+		}
+
+		// Function to handle the AJAX request error
+		function handleError(xhr, status, error) {
+			console.error(error);
+		}
+
+		// On page load, retrieve the user's IP address and get the currency based on the IP
+		$(document).ready(function () {
+			getIPAddress()
+				.done(function (data) {
+					// Retrieve the user's IP address
+					var ipAddress = data.ip;
+
+					// Make an AJAX request to get the currency based on the user's IP address
+					getCurrencyByIP()
+						.done(handleSuccess)
+						.fail(handleError);
+				})
+				.fail(handleError);
+		});
+
+		function convertPricesToCurrency(selectedCurrency) {
+			// Fetch the item prices from the backend for all items
+			$.ajax({
+				type: "GET",
+				url: "/getItemsWithPrices",
+				success: function (response) {
+					var itemsWithPrices = response; // Array of items with prices from the backend
+					var conversionRates = {
+						"SGD": 1,  // Assuming SGD is the default currency, so the rate is 1
+						"USD": 0.74, // Example conversion rates, you should fetch actual rates
+						"EUR": 0.63,
+						"JPY": 80.03
+					};
+
+					// Get the current currency of the prices on the page (e.g., SGD, USD, EUR, etc.)
+					var currentCurrency = "SGD"; // Assuming the default currency is SGD, you can fetch it from the backend if needed
+
+					// Get all elements with the class name that displays the price, e.g., <span class="item-price">
+					var priceElements = document.getElementsByClassName("item-price");
+
+					// Iterate through all price elements and convert their prices to the selected currency
+					for (var i = 0; i < priceElements.length; i++) {
+						var priceElement = priceElements[i];
+						var itemId = priceElement.dataset.itemId; // Get the item ID from the data attribute
+						var itemPrice = getItemPriceById(itemsWithPrices, itemId); // Get the price for the item from the fetched data
+
+						// Convert the price to the selected currency using the conversion rate
+						var convertedPrice = itemPrice * (conversionRates[selectedCurrency] / conversionRates[currentCurrency]);
+
+						// Update the price text in the element with the new converted price
+						priceElement.textContent = convertedPrice.toFixed(2); // Display the price with two decimal places
+					}
+				},
+				error: function (xhr, status, error) {
+					console.error(error);
+				}
+			});
+		}
+
+		// Function to get item price by item ID from the fetched data
+		function getItemPriceById(itemsWithPrices, itemId) {
+			var item = itemsWithPrices.find(item => item.id === itemId);
+			return item ? item.price : 0; // Return 0 if item is not found (handle gracefully)
+		}
+	</script>
+</body>
+
+</html>

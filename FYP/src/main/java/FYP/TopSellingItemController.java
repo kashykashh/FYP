@@ -52,7 +52,7 @@ public class TopSellingItemController {
 		return "seller_top-selling-items";
 	}
 
-	@GetMapping("/admin/top-selling-items")
+	@GetMapping("/admin/top-selling-items-sellerList")
 	public String viewTopSellingItemsForAdmin(Model model) {
 		List<User> sellers = userRepository.findAll();
 		model.addAttribute("sellers", sellers);

@@ -42,6 +42,7 @@
             margin-bottom: 10px;
             padding: 10px;
             border-radius: 4px;
+            list-style: none; /* Remove bullet points */
         }
 
         .pagination {
@@ -53,10 +54,18 @@
 <body>
     <div th:replace="fragments/navbarHeader"></div>
     <div class="container">
-        <h1>Admin - Top Selling Items</h1>
+        <h1>Admin - Seller List</h1>
 
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Search by seller name">
+        </div>
+         <div class="form-group my-2">
+            <label for="sellersPerPage">Sellers Per Page:</label>
+            <select id="sellersPerPage" class="form-control">
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+            </select>
         </div>
 
         <h2>Select Seller:</h2>
@@ -69,48 +78,85 @@
             </li>
         </ul>
 
+       
+
         <nav>
-            <ul class="pagination">
-                <li class="page-item">
-                    <a class="page-link" href="#">Previous</a>
-                </li>
-                <li class="page-item active">
-                    <a class="page-link" href="#">1</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">2</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">3</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
-                </li>
-            </ul>
+            <ul class="pagination" id="pagination"></ul>
         </nav>
     </div>
 
     <script>
-        function searchSeller() {
-            var input, filter, ul, li, a, i, txtValue;
-            input = document.getElementById("searchInput");
-            filter = input.value.toUpperCase();
-            ul = document.getElementsByClassName("seller-list")[0];
-            li = ul.getElementsByTagName("li");
+        var sellersList = document.getElementsByClassName("seller-list")[0];
+        var sellers = Array.from(sellersList.getElementsByTagName("li"));
+        var rowsPerPage = 5; // Default value
+        var totalPages = Math.ceil(sellers.length / rowsPerPage);
+        var currentPage = 1;
 
-            for (i = 0; i < li.length; i++) {
-                a = li[i].getElementsByTagName("a")[0];
-                txtValue = a.textContent || a.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    li[i].style.display = "";
+        // Function to display the sellers for the current page and update pagination
+        function displaySellers() {
+            var startIndex = (currentPage - 1) * rowsPerPage;
+            var endIndex = startIndex + rowsPerPage;
+
+            // Display sellers for the current page
+            for (var i = 0; i < sellers.length; i++) {
+                if (i >= startIndex && i < endIndex) {
+                    sellers[i].style.display = "";
                 } else {
-                    li[i].style.display = "none";
+                    sellers[i].style.display = "none";
+                }
+            }
+
+            // Update pagination links
+            var pagination = document.getElementById("pagination");
+            var paginationHTML = "";
+            for (var page = 1; page <= totalPages; page++) {
+                if (page === currentPage) {
+                    paginationHTML += '<li class="page-item active"><a class="page-link" href="#">' + page + '</a></li>';
+                } else {
+                    paginationHTML += '<li class="page-item"><a class="page-link" href="#" onclick="changePage(' + page + ')">' + page + '</a></li>';
+                }
+            }
+            pagination.innerHTML = paginationHTML;
+        }
+
+        // Function to change the current page
+        function changePage(page) {
+            currentPage = page;
+            displaySellers();
+        }
+
+        // Function to update sellers per page and recalculate pagination
+        function updateSellersPerPage() {
+            rowsPerPage = parseInt(document.getElementById("sellersPerPage").value);
+            totalPages = Math.ceil(sellers.length / rowsPerPage);
+            currentPage = 1;
+            displaySellers();
+        }
+
+        // Initial display
+        displaySellers();
+
+        // Search functionality
+        function filterSellers() {
+            var input = document.getElementById("searchInput");
+            var filter = input.value.toUpperCase();
+
+            for (var i = 0; i < sellers.length; i++) {
+                var sellerName = sellers[i].getElementsByTagName("span")[0].textContent;
+                if (sellerName.toUpperCase().indexOf(filter) > -1) {
+                    sellers[i].style.display = "";
+                } else {
+                    sellers[i].style.display = "none";
                 }
             }
         }
 
         var searchInput = document.getElementById("searchInput");
-        searchInput.addEventListener("input", searchSeller);
+        searchInput.addEventListener("input", filterSellers);
+
+        // Event listener for sellers per page change
+        var sellersPerPageSelect = document.getElementById("sellersPerPage");
+        sellersPerPageSelect.addEventListener("change", updateSellersPerPage);
     </script>
 
     <div th:replace="fragments/footer"></div>
