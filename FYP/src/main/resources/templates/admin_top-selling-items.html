@@ -8,26 +8,55 @@
 		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 	<title>Admin View - Top Selling Items</title>
 
+	<style>
+		table {
+			border-collapse: separate;
+			border-spacing: 0 8px;
+		}
+
+		table.table {
+			border-radius: 10px;
+			overflow: hidden;
+		}
+
+		/* Style for table header */
+		table.table thead th {
+			background-color: #343a40;
+			color: #ffffff;
+		}
+
+		/* Style for table body */
+		table.table tbody td {
+			background-color: #f8f9fa;
+			border-bottom: 1px solid #dee2e6;
+		}
+
+		table.table tbody tr:last-child td {
+			border-bottom: none;
+		}
+	</style>
 </head>
 
 <body>
 	<div th:replace="fragments/navbarHeader"></div>
 	<div class="container">
 		<h1>Top Selling Items</h1>
-		<table class="table table-striped table-hover">
-			<thead>
-				<tr>
-					<th>Item Name</th>
-					<th>Quantity Sold</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="topSellingItem : ${topSellingItems}">
-					<td th:text="${topSellingItem.item.name}"></td>
-					<td th:text="${topSellingItem.quantitySold}"></td>
-				</tr>
-			</tbody>
-		</table>
+		<div class="table-responsive">
+			<table class="table table-striped table-hover">
+				<thead class="thead-dark">
+					<tr>
+						<th scope="col">Item Name</th>
+						<th scope="col">Quantity Sold</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="topSellingItem : ${topSellingItems}">
+						<td th:text="${topSellingItem.item.name}"></td>
+						<td th:text="${topSellingItem.quantitySold}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 	<div th:replace="fragments/footer"></div>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"

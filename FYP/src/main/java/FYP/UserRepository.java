@@ -36,4 +36,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("SELECT u FROM User u WHERE u.banned = true")
 	List<User> findByBannedTrue();
 
+	List<User> findAll();
 }

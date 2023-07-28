@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.Sort;
 
 /**
  * @author 21033239
@@ -59,36 +58,32 @@ public class TopSellingItemController {
 				.peek(seller -> {
 					// Calculate total revenue for each seller
 					List<TopSellingItem> topSellingItems = topSellingItemRepository.findBySeller(seller);
-					int totalRevenue = (int) topSellingItems.stream().mapToDouble(
+					double totalRevenue = topSellingItems.stream().mapToDouble(
 							topSellingItem -> topSellingItem.getQuantitySold() * topSellingItem.getItem().getPrice())
 							.sum();
 					seller.setTotalRevenue(totalRevenue);
-				}).sorted(Comparator.comparingInt(User::getTotalRevenue).reversed()).collect(Collectors.toList());
+				}).sorted(Comparator.comparingDouble(User::getTotalRevenue).reversed()).collect(Collectors.toList());
 
 		model.addAttribute("sellers", sellers);
 
 		return "admin_top-selling-items-sellerList";
 	}
-	
-	@GetMapping("/admin/top-sellers-graph")
-    public String showTopSellersGraph(Model model) {
-        List<User> sellers = userRepository.findAll().stream()
-            .filter(user -> user.getRole().equals("ROLE_SELLER"))
-            .peek(seller -> {
-                // Calculate total revenue for each seller
-                List<TopSellingItem> topSellingItems = topSellingItemRepository.findBySeller(seller);
-                int totalRevenue = (int) topSellingItems.stream()
-                    .mapToDouble(topSellingItem -> topSellingItem.getQuantitySold() * topSellingItem.getItem().getPrice())
-                    .sum();
-                seller.setTotalRevenue(totalRevenue);
-            })
-            .sorted(Comparator.comparingInt(User::getTotalRevenue).reversed())
-            .collect(Collectors.toList());
 
-        model.addAttribute("sellersData", sellers);
-        return "admin_top-sellers-graph";
-    }
-	
+	@GetMapping("/admin/top-sellers-graph")
+	public String showTopSellersGraph(Model model) {
+		List<User> sellers = userRepository.findAll().stream().filter(user -> user.getRole().equals("ROLE_SELLER"))
+				.peek(seller -> {
+					// Calculate total revenue for each seller
+					List<TopSellingItem> topSellingItems = topSellingItemRepository.findBySeller(seller);
+					double totalRevenue = topSellingItems.stream().mapToDouble(
+							topSellingItem -> topSellingItem.getQuantitySold() * topSellingItem.getItem().getPrice())
+							.sum();
+					seller.setTotalRevenue(totalRevenue);
+				}).sorted(Comparator.comparingDouble(User::getTotalRevenue).reversed()).collect(Collectors.toList());
+
+		model.addAttribute("sellersData", sellers);
+		return "admin_top-sellers-graph";
+	}
 
 	@GetMapping("/admin/top-selling-items/{sellerId}")
 	public String viewTopSellingItemsForSellerId(@PathVariable Long sellerId, Model model) {

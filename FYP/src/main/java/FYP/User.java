@@ -40,7 +40,7 @@ public class User {
 	private Date deletedAt;
 	private int moderationFailures;
 	private boolean banned;
-	private int totalRevenue;
+	private double totalRevenue;
 
 	@OneToMany(mappedBy = "user")
 	private List<Item> items;
@@ -133,11 +133,11 @@ public class User {
 		this.banned = banned;
 	}
 
-	public int getTotalRevenue() {
+	public double getTotalRevenue() {
 		return totalRevenue;
 	}
 
-	public void setTotalRevenue(int totalRevenue) {
+	public void setTotalRevenue(double totalRevenue) {
 		this.totalRevenue = totalRevenue;
 	}
 }
