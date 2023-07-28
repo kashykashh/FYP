@@ -18,6 +18,16 @@
 			padding-left: 0;
 			padding-right: 0;
 		}
+
+		.navbar-nav {
+			height: 100%;
+			display: flex;
+			align-items: center;
+		}
+
+		.navbar-nav .dropdown .nav-link {
+			padding: 10px;
+		}
 	</style>
 </head>
 
@@ -29,13 +39,13 @@
 			</a>
 
 			<!-- Toggle button for mobile nav -->
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
 				aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="" role="button"><i class="fa fa-bars" aria-hidden="true" style="color: #e6e6ff"></i></span>
 			</button>
 
 			<!-- Navbar links -->
-			<div class="collapse navbar-collapse justify-content-end align-items-center" id="main-nav">
+			<div class="collapse navbar-collapse justify-content-center align-items-center" id="main-nav">
 				<ul class="navbar-nav">
 
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle text-white" href="#"
@@ -88,17 +98,15 @@
 
 					<!-- Dropdown menu for authenticated users -->
 					<li sec:authorize="isAuthenticated()" class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button"
+						<div class="nav-link dropdown-toggle text-white" id="userDropdown" role="button"
 							data-bs-toggle="dropdown" aria-expanded="false">
 							<span sec:authentication="principal.username"></span>
-						</a>
-						<ul class="dropdown-menu dropdown-menu-end minimal-dropdown" aria-labelledby="userDropdown">
-							<li>
-								<form th:action="@{/logout}" method="post">
-									<button class="dropdown-item custom-dropdown-item" type="submit">Logout</button>
-								</form>
-							</li>
-						</ul>
+						</div>
+						<div class="dropdown-menu dropdown-menu-end minimal-dropdown" aria-labelledby="userDropdown">
+							<form th:action="@{/logout}" method="post">
+								<button class="dropdown-item custom-dropdown-item" type="submit">Logout</button>
+							</form>
+						</div>
 					</li>
 
 

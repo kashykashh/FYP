@@ -66,8 +66,29 @@ public class TopSellingItemController {
 				}).sorted(Comparator.comparingInt(User::getTotalRevenue).reversed()).collect(Collectors.toList());
 
 		model.addAttribute("sellers", sellers);
+
 		return "admin_top-selling-items-sellerList";
 	}
+	
+	@GetMapping("/admin/top-sellers-graph")
+    public String showTopSellersGraph(Model model) {
+        List<User> sellers = userRepository.findAll().stream()
+            .filter(user -> user.getRole().equals("ROLE_SELLER"))
+            .peek(seller -> {
+                // Calculate total revenue for each seller
+                List<TopSellingItem> topSellingItems = topSellingItemRepository.findBySeller(seller);
+                int totalRevenue = (int) topSellingItems.stream()
+                    .mapToDouble(topSellingItem -> topSellingItem.getQuantitySold() * topSellingItem.getItem().getPrice())
+                    .sum();
+                seller.setTotalRevenue(totalRevenue);
+            })
+            .sorted(Comparator.comparingInt(User::getTotalRevenue).reversed())
+            .collect(Collectors.toList());
+
+        model.addAttribute("sellersData", sellers);
+        return "admin_top-sellers-graph";
+    }
+	
 
 	@GetMapping("/admin/top-selling-items/{sellerId}")
 	public String viewTopSellingItemsForSellerId(@PathVariable Long sellerId, Model model) {

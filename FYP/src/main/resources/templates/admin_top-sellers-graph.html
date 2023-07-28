@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+          crossorigin="anonymous">
+    <style>
+        /* Add any additional styles for the graph page here */
+    </style>
+</head>
+<body>
+<div th:replace="fragments/navbarHeader"></div>
+<div class="container">
+    <h1>Top Selling Sellers - Revenue Graph</h1>
+    <canvas id="topSellingChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    // Retrieve the sellers data passed from the controller
+    var sellersData = /*[[${sellersData}]]*/ [];
+
+    // Extract seller names and total revenues
+    var sellerNames = sellersData.map(seller => seller.name);
+    var totalRevenues = sellersData.map(seller => seller.totalRevenue);
+
+    // Function to create the chart with the fetched seller data
+    function createChart() {
+        // Create the chart
+        var ctx = document.getElementById('topSellingChart').getContext('2d');
+        var topSellingChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sellerNames,
+                datasets: [{
+                    label: 'Total Revenue',
+                    data: totalRevenues,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // On page load, create the chart with the fetched seller data
+    document.addEventListener("DOMContentLoaded", function () {
+        createChart();
+    });
+</script>
+
+
+<div th:replace="fragments/footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+</body>
+</html>
