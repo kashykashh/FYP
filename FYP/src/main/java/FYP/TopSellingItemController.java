@@ -15,6 +15,7 @@ package FYP;
 import java.security.Principal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,7 +55,16 @@ public class TopSellingItemController {
 
 	@GetMapping("/admin/top-selling-items-sellerList")
 	public String viewTopSellingItemsForAdmin(Model model) {
-		List<User> sellers = userRepository.findAll();
+		List<User> sellers = userRepository.findAll().stream().filter(user -> user.getRole().equals("ROLE_SELLER"))
+				.peek(seller -> {
+					// Calculate total revenue for each seller
+					List<TopSellingItem> topSellingItems = topSellingItemRepository.findBySeller(seller);
+					int totalRevenue = (int) topSellingItems.stream().mapToDouble(
+							topSellingItem -> topSellingItem.getQuantitySold() * topSellingItem.getItem().getPrice())
+							.sum();
+					seller.setTotalRevenue(totalRevenue);
+				}).sorted(Comparator.comparingInt(User::getTotalRevenue).reversed()).collect(Collectors.toList());
+
 		model.addAttribute("sellers", sellers);
 		return "admin_top-selling-items-sellerList";
 	}

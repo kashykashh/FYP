@@ -15,15 +15,22 @@
 		<main>
 			<form th:action="@{/login}" method="post">
 				<h1>Please Login</h1>
-				<div th:if="${param.error}" class="alert alert-danger">
-					Invalid username and password
+				<!-- Show banned user error message -->
+				<div th:if="${param.error}">
+					<p th:if="${#strings.equals(session['SPRING_SECURITY_LAST_EXCEPTION'].message, 'Your account has been banned. Please contact the administrator for further assistance.')}"
+						th:text="${session['SPRING_SECURITY_LAST_EXCEPTION'].message}" class="alert alert-danger"></p>
+					<div th:unless="${#strings.equals(session['SPRING_SECURITY_LAST_EXCEPTION'].message, 'Your account has been banned. Please contact the administrator for further assistance.')}"
+						class="alert alert-danger">
+						Invalid username and password
+					</div>
 				</div>
+				<!-- End of banned user error section -->
 				<div th:if="${param.logout}" class="alert alert-success">
 					You have been logged out
 				</div>
-				<label for "username" class="form-label">Username</label>
+				<label for="username" class="form-label">Username</label>
 				<input type="text" class="form-control" id="username" name="username" style="color: #19BFB7" />
-				<label for "password" class="form-label">Password</label>
+				<label for="password" class="form-label">Password</label>
 				<input type="password" class="form-control" id="password" name="password" style="color: #19BFB7">
 				<div class="mt-3">
 					<a href="/forgot-password">Forgot Password?</a>

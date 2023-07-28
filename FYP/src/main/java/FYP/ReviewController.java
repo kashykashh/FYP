@@ -14,6 +14,8 @@ package FYP;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
@@ -39,24 +41,39 @@ public class ReviewController {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
-    private ItemRepository itemRepository;
+	private ItemRepository itemRepository;
 
 	@GetMapping("/{sellerId}")
-    public ModelAndView viewSellerProfile(@PathVariable Long sellerId, ModelMap model) {
-        User seller = userRepository.getById(sellerId);
-        List<Review> sellerReviews = reviewService.getReviewsBySellerId(sellerId);
+	public ModelAndView viewSellerProfile(@PathVariable Long sellerId, ModelMap model) {
+		User seller = userRepository.getById(sellerId);
+		List<Review> sellerReviews = reviewService.getReviewsBySellerId(sellerId);
 
-        // Fetch the items associated with the seller using the ItemRepository
-        List<Item> itemList = itemRepository.findByUserId(sellerId);
+		// Create a list of reviews with comments
+		List<Review> sellerReviewsWithComments = sellerReviews.stream()
+				.filter(review -> review.getComment() != null && !review.getComment().isEmpty())
+				.collect(Collectors.toList());
 
-        model.addAttribute("user", seller);
-        model.addAttribute("sellerReviews", sellerReviews);
-        model.addAttribute("itemList", itemList); // Pass the itemList to the template
+		model.addAttribute("user", seller);
+		model.addAttribute("sellerReviews", sellerReviews);
+		model.addAttribute("sellerReviewsWithComments", sellerReviewsWithComments);
 
-        return new ModelAndView("seller_profile", model);
-    }
+		// Calculate the average rating for the seller based on reviews with comments
+		double averageRating = Review.calculateAverageRating(sellerReviewsWithComments);
+		String formattedAverageRating = String.format("%.1f", averageRating);
+		model.addAttribute("averageRating", formattedAverageRating);
+
+		// Calculate the star ratings percentage for all reviews (with and without
+		// comments)
+		Map<Integer, Double> starRatingsPercentage = Review.calculateStarRatingsPercentage(sellerReviews);
+		model.addAttribute("starRatingsPercentage", starRatingsPercentage);
+
+		List<Item> itemList = itemRepository.findByUserId(sellerId);
+		model.addAttribute("itemList", itemList);
+
+		return new ModelAndView("seller_profile", model);
+	}
 
 	@PostMapping("/{sellerId}/addReview")
 	public ModelAndView addSellerReview(@PathVariable Long sellerId, @RequestParam int rating,

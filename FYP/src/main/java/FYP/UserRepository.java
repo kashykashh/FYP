@@ -12,7 +12,10 @@
  */
 package FYP;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * @author 21033239
@@ -29,5 +32,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	public User findByEmail(String email);
 
 	public User findByResetToken(String resetToken);
+
+	@Query("SELECT u FROM User u WHERE u.banned = true")
+	List<User> findByBannedTrue();
 
 }

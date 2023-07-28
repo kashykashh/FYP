@@ -12,6 +12,11 @@
  */
 package FYP;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -48,6 +53,35 @@ public class Review {
 		this.seller = seller;
 		this.rating = rating;
 		this.comment = comment;
+	}
+
+	public static double calculateAverageRating(List<Review> reviews) {
+		if (reviews == null || reviews.isEmpty()) {
+			return 0.0;
+		}
+
+		int totalRating = 0;
+		for (Review review : reviews) {
+			totalRating += review.getRating();
+		}
+
+		return (double) totalRating / reviews.size();
+	}
+
+	public static Map<Integer, Double> calculateStarRatingsPercentage(List<Review> reviews) {
+		Map<Integer, Long> ratingCounts = reviews.stream()
+				.collect(Collectors.groupingBy(Review::getRating, Collectors.counting()));
+
+		long totalRatings = reviews.size();
+
+		Map<Integer, Double> ratingPercentage = new HashMap<>();
+		for (int i = 1; i <= 5; i++) {
+			long count = ratingCounts.getOrDefault(i, 0L);
+			double percentage = (count / (double) totalRatings) * 100;
+			ratingPercentage.put(i, percentage);
+		}
+
+		return ratingPercentage;
 	}
 
 	public Long getId() {

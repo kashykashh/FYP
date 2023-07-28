@@ -28,7 +28,7 @@ import javax.persistence.OneToMany;
 @Entity
 public class User {
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String name;
 	private String username;
@@ -38,80 +38,106 @@ public class User {
 	private String resetToken;
 	private String deletedBy;
 	private Date deletedAt;
-    private int moderationFailures; // New field to track moderation failures
-    private boolean banned; // To indicate whether the user is banned or not
+	private int moderationFailures;
+	private boolean banned;
+	private int totalRevenue;
 
-	@OneToMany(mappedBy="user")
-    private List<Item> items;
-	
+	@OneToMany(mappedBy = "user")
+	private List<Item> items;
+
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public String getUsername() {
 		return username;
 	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public String getPassword() {
 		return password;
 	}
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 	public String getEmail() {
 		return email;
 	}
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
 	public String getRole() {
 		return role;
 	}
+
 	public void setRole(String role) {
 		this.role = role;
 	}
+
 	public String getResetToken() {
-        return resetToken;
-    }
+		return resetToken;
+	}
+
 	public void setResetToken(String resetToken) {
-        this.resetToken = resetToken;
-    }
+		this.resetToken = resetToken;
+	}
+
 	public String getDeletedBy() {
 		return deletedBy;
 	}
+
 	public void setDeletedBy(String deletedBy) {
 		this.deletedBy = deletedBy;
 	}
+
 	public Date getDeletedAt() {
 		return deletedAt;
 	}
+
 	public void setDeletedAt(Date deletedAt) {
 		this.deletedAt = deletedAt;
 	}
-	
+
 	public int getModerationFailures() {
-        return moderationFailures;
-    }
+		return moderationFailures;
+	}
 
-    public void setModerationFailures(int moderationFailures) {
-        this.moderationFailures = moderationFailures;
-    }
-    
-    public boolean isBanned() {
-        return banned;
-    }
+	public void setModerationFailures(int moderationFailures) {
+		this.moderationFailures = moderationFailures;
+	}
 
-    public void setBanned(boolean banned) {
-        this.banned = banned;
-    }
+	public boolean isBanned() {
+		return banned;
+	}
+
+	public void setBanned(boolean banned) {
+		this.banned = banned;
+	}
+
+	public int getTotalRevenue() {
+		return totalRevenue;
+	}
+
+	public void setTotalRevenue(int totalRevenue) {
+		this.totalRevenue = totalRevenue;
+	}
 }

@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
+	<link rel="icon" href="/images/WorldBay_Logo.ico">
 	<meta charset="UTF-8">
 	<title th:text="${user.name} + ' - Seller Profile - WorldBay'"></title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -103,20 +104,94 @@
 			box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 			color: #fff;
 		}
+
+		/* Additional styles for average rating */
+		.average-rating {
+			display: flex;
+			align-items: center;
+		}
+
+		.average-value {
+			font-size: 2rem;
+			font-weight: bold;
+			margin-right: 10px;
+		}
+
+		.average-divider {
+			font-size: 2rem;
+			margin: 0 5px;
+		}
+
+		.average-max-value {
+			font-size: 2rem;
+			font-weight: bold;
+		}
+
+		.star-fill {
+			height: 20px;
+			background-color: #f7d94c;
+			border-radius: 5px;
+		}
+
+		/* Additional styles for rating bars */
+		.star-rating-bar-1 .star-fill {
+			background-color: #f7d94c;
+			/* Yellow */
+		}
+
+		.star-rating-bar-2 .star-fill {
+			background-color: #66c2a5;
+			/* Green */
+		}
+
+		.star-rating-bar-3 .star-fill {
+			background-color: #fc8d62;
+			/* Orange */
+		}
+
+		.star-rating-bar-4 .star-fill {
+			background-color: #8da0cb;
+			/* Purple */
+		}
+
+		.star-rating-bar-5 .star-fill {
+			background-color: #e78ac3;
+			/* Pink */
+		}
 	</style>
 </head>
 
 <body>
 	<div th:replace="fragments/navbarHeader"></div>
 
-	<!-- Anchor link to scroll to Ratings and Reviews Section -->
-	<div style="text-align: center; margin-top: 20px;">
-		<a href="#ratingsAndReviews" class="scroll-to-reviews-btn">Post a Rating and Review</a>
-	</div>
+
 
 	<!-- Seller Profile Information -->
 	<div class="container my-4">
 		<h1>Seller Profile - <span th:text="${user.name}"></span></h1>
+
+		<!-- Display the average rating as a numeric value -->
+		<div class="mb-3">
+			<h4>Average Rating:</h4>
+			<div class="average-rating">
+				<span class="average-value" th:text="${averageRating}"></span>
+				<span class="average-divider">/</span>
+				<span class="average-max-value">5.0</span>
+			</div>
+		</div>
+
+		<!-- Display the rating bars using the list with comments -->
+		<div class="star-ratings-container">
+			<div th:each="rating : ${starRatingsPercentage}" th:class="'star-rating-bar-' + ${rating.key}">
+				<span class="star-rating-label" th:text="${rating.key + ' stars'}"></span>
+				<div class="star-fill" th:style="'width:' + ${rating.value} + '%'"></div>
+			</div>
+		</div>
+
+		<!-- Anchor link to scroll to Ratings and Reviews Section -->
+		<div style="text-align: center; margin-top: 20px;">
+			<a href="#ratingsAndReviews" class="scroll-to-reviews-btn">Post a Rating and Review</a>
+		</div>
 
 		<!-- Seller's Listed Products Section -->
 		<div class="container mt-4">
@@ -144,9 +219,11 @@
 		<div class="container mt-4" id="ratingsAndReviews">
 			<h2>Ratings and Reviews</h2>
 
+			<br>
 
 			<!-- Form for users to submit new ratings and reviews -->
-			<form th:action="@{/seller/{sellerId}/addReview(sellerId=${user.id})}" method="post">
+			<form th:action="@{/seller/{sellerId}/addReview(sellerId=${user.id})}" method="post"
+				onsubmit="return validateForm()">
 				<div class="form-group" style="text-align: left;">
 					<label for="rating">Rating:</label>
 					<div class="star-rating">
@@ -162,6 +239,8 @@
 						<label for="star1"></label>
 					</div>
 				</div>
+				<div id="ratingErrorMessage" style="color: red; display: none;">Please select star rating to post a
+					review</div>
 				<div class="form-group">
 					<label for="comment">Comment:</label>
 					<textarea class="form-control" id="comment" name="comment" rows="3" maxlength="255"></textarea>
@@ -194,34 +273,62 @@
 
 				// Attach an event listener to the textarea to track input changes
 				commentTextArea.addEventListener('input', limitCharacters);
+
+				function validateForm() {
+					const starInputs = document.querySelectorAll('input[name="rating"]');
+					let isRatingSelected = false;
+
+					// Check if any star rating is selected
+					starInputs.forEach(input => {
+						if (input.checked) {
+							isRatingSelected = true;
+						}
+					});
+
+					// If no star rating is selected, display an error message and prevent form submission
+					if (!isRatingSelected) {
+						const errorMessage = document.getElementById('ratingErrorMessage');
+						errorMessage.style.display = 'block';
+						return false; // Prevent form submission
+					}
+
+					// If a star rating is selected, hide the error message and allow form submission
+					const errorMessage = document.getElementById('ratingErrorMessage');
+					errorMessage.style.display = 'none';
+					return true; // Allow form submission
+				}
 			</script>
 			<hr>
 			<h3>Existing Reviews:</h3>
-			<div th:each="review, iterStat : ${sellerReviews}" th:if="${iterStat.index < 3}" id="reviewBlock">
+			<!-- Display reviews with comments -->
+			<div id="reviewBlock" th:each="review, iterStat : ${sellerReviewsWithComments}"
+				th:if="${iterStat.index < 3}">
 				<p><b>User:</b> <span th:text="${review.reviewer.name}"></span></p>
 				<!-- Display stars based on the rating -->
 				<p>
 					<b>Rating:</b>
 					<span th:each="i : ${#numbers.sequence(1, review.rating)}">&#9733;</span>
 				</p>
-				<p><b>Comment:</b> <span th:text="${review.comment}"></span></p>
+				<p th:if="${review.comment}"><b>Comment:</b> <span th:text="${review.comment}"></span></p>
 				<hr>
 			</div>
-			<div class="hidden-reviews" th:each="review, iterStat : ${sellerReviews}" th:if="${iterStat.index >= 3}"
-				style="display:none">
+
+			<div class="hidden-reviews" th:each="review, iterStat : ${sellerReviewsWithComments}"
+				th:if="${iterStat.index >= 3}" style="display:none">
 				<p><b>User:</b> <span th:text="${review.reviewer.name}"></span></p>
 				<!-- Display stars based on the rating -->
 				<p>
 					<b>Rating:</b>
 					<span th:each="i : ${#numbers.sequence(1, review.rating)}">&#9733;</span>
 				</p>
-				<p><b>Comment:</b> <span th:text="${review.comment}"></span></p>
+				<p th:if="${review.comment}"><b>Comment:</b> <span th:text="${review.comment}"></span></p>
 				<hr>
 			</div>
-			<div id="showMoreButton" th:if="${sellerReviews.size() > 3}" style="text-align: center;">
+
+			<div id="showMoreButton" th:if="${sellerReviewsWithComments.size() > 3}" style="text-align: center;">
 				<button type="button" class="btn btn-primary" onclick="showMoreReviews()">
 					Show More Reviews
-					<span th:text="${' (' + (sellerReviews.size() - 3) + ' more)'}"></span>
+					<span th:text="${' (' + (sellerReviewsWithComments.size() - 3) + ' more)'}"></span>
 				</button>
 			</div>
 		</div>
@@ -237,8 +344,14 @@
 			const hiddenReviews = document.querySelectorAll('.hidden-reviews');
 			const showMoreButton = document.getElementById('showMoreButton');
 
-			// Toggle the visibility of all hidden reviews
+			// Toggle the visibility of all hidden reviews with comments
 			hiddenReviews.forEach(review => review.style.display = 'block');
+
+			// Count the number of hidden reviews with comments
+			const additionalReviewCount = hiddenReviews.length;
+
+			// Update the "Show more" button text
+			showMoreButton.textContent = `Show More Reviews (${additionalReviewCount} More)`;
 
 			// Hide the "Show More" button after displaying all reviews
 			showMoreButton.style.display = 'none';

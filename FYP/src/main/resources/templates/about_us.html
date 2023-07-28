@@ -2,47 +2,120 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<link rel="icon" href="/images/WorldBay_Logo.ico">
-<title>WorldBay - About Us</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
-	crossorigin="anonymous">
-<style>
-html, body, .container-fluid, .row, .col {
-	height: 100%;
-}
+	<link rel="icon" href="/images/WorldBay_Logo.ico">
+	<title>WorldBay - About Us</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+	<style>
+		html,
+		body,
+		.container-fluid,
+		.row,
+		.col {
+			height: 100%;
+		}
 
-/* Add custom styling for the logo */
-.logo-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 200px;
-}
+		/* Add custom styling for the logo */
+		.logo-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 200px;
+		}
 
-.logo-img {
-	width: 200px;
-	/* Adjust this size to fit your logo */
-	height: auto;
-}
+		.logo-img {
+			width: 200px;
+			/* Adjust this size to fit your logo */
+			height: auto;
+		}
 
-/* Add some spacing for achievements */
-.achievements {
-	margin-bottom: 30px;
-}
+		/* Add some spacing for achievements */
+		.achievements {
+			margin-bottom: 30px;
+		}
 
-/* Add custom styling for team member cards */
-.team-card {
-	padding: 15px;
-	border: 1px solid #ccc;
-	border-radius: 10px;
-	margin: 15px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-</style>
+		/* Add custom styling for team member cards */
+		.team-card {
+			padding: 15px;
+			border: 1px solid #ccc;
+			border-radius: 10px;
+			margin: 15px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		}
+
+		/* Our Impact */
+		.our-impact {
+			background-color: #f9f9f9;
+			padding: 40px 0;
+		}
+
+		.impact-title {
+			color: #007bff;
+		}
+
+		/* Testimonials */
+		.testimonial-section {
+			padding: 40px 0;
+		}
+
+		.testimonial-title {
+			color: #007bff;
+		}
+
+		/* Carousel buttons */
+		.carousel-control-prev,
+		.carousel-control-next {
+			background-color: rgba(0, 0, 0, 0.1);
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			line-height: 40px;
+			font-size: 24px;
+		}
+
+		.carousel-control-prev-icon,
+		.carousel-control-next-icon {
+			color: #fff;
+			transition: color 0.3s;
+		}
+
+		.carousel-control-prev:hover,
+		.carousel-control-next:hover {
+			background-color: rgba(0, 0, 0, 0.2);
+		}
+
+		/* Center carousel controls on small devices */
+		@media (max-width: 576px) {
+
+			.carousel-control-prev,
+			.carousel-control-next {
+				left: 50%;
+				transform: translateX(-50%);
+			}
+		}
+
+		/* Join Our Community */
+		.join-community {
+			background-color: #f9f9f9;
+			padding: 40px 0;
+		}
+
+		.community-title {
+			color: #007bff;
+		}
+
+		.social-icons a {
+			color: #333;
+			font-size: 24px;
+			margin: 0 8px;
+			transition: color 0.3s;
+		}
+
+		.social-icons a:hover {
+			color: #007bff;
+		}
+	</style>
 </head>
 
 <body>
@@ -52,8 +125,7 @@ html, body, .container-fluid, .row, .col {
 		<div class="row align-items-center justify-content-center">
 			<div class="col text-center">
 				<div class="logo-container">
-					<img class="logo-img" src="/images/WorldBay-rmbg.png"
-						alt="WorldBay Logo">
+					<img class="logo-img" src="/images/WorldBay-rmbg.png" alt="WorldBay Logo">
 				</div>
 				<h1>About Us</h1>
 				<p>Welcome to WorldBay, your one-stop ecommerce platform!</p>
@@ -65,8 +137,7 @@ html, body, .container-fluid, .row, .col {
 					small businesses – all in one place!</p>
 
 				<!-- Interactive Element: Fun Fact Carousel -->
-				<div id="fun-fact-carousel" class="carousel slide mt-5"
-					data-bs-ride="carousel">
+				<div id="fun-fact-carousel" class="carousel slide mt-5" data-bs-ride="carousel">
 					<div class="carousel-inner">
 						<div class="carousel-item active">
 							<p class="lead">
@@ -87,13 +158,13 @@ html, body, .container-fluid, .row, .col {
 							</p>
 						</div>
 					</div>
-					<button class="carousel-control-prev" type="button"
-						data-bs-target="#fun-fact-carousel" data-bs-slide="prev">
+					<button class="carousel-control-prev" type="button" data-bs-target="#fun-fact-carousel"
+						data-bs-slide="prev">
 						<span class="carousel-control-prev-icon" aria-hidden="true"></span>
 						<span class="visually-hidden">Previous</span>
 					</button>
-					<button class="carousel-control-next" type="button"
-						data-bs-target="#fun-fact-carousel" data-bs-slide="next">
+					<button class="carousel-control-next" type="button" data-bs-target="#fun-fact-carousel"
+						data-bs-slide="next">
 						<span class="carousel-control-next-icon" aria-hidden="true"></span>
 						<span class="visually-hidden">Next</span>
 					</button>
@@ -164,9 +235,93 @@ html, body, .container-fluid, .row, .col {
 		</div>
 	</div>
 
+	<!-- Our Impact -->
+	<div class="container-fluid our-impact">
+		<div class="row align-items-center justify-content-center mt-5">
+			<div class="col text-center">
+				<h2 class="impact-title">Our Impact</h2>
+				<p>At WorldBay, we believe in making a positive impact on the world. Here are some of the ways we give
+					back:</p>
+				<ul class="list-unstyled">
+					<li>For every order placed, we donate a portion to support various charitable organizations.</li>
+					<li>We promote eco-friendly packaging options to reduce our environmental footprint.</li>
+					<li>We collaborate with local artisans and small businesses to empower communities.</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<!-- Testimonials -->
+	<div class="container-fluid testimonial-section">
+		<div class="row align-items-center justify-content-center mt-5">
+			<div class="col text-center">
+				<h2 class="testimonial-title">What Our Customers Say</h2>
+				<div id="testimonial-carousel" class="carousel slide" data-bs-ride="carousel">
+					<div class="carousel-inner">
+						<div class="carousel-item active">
+							<blockquote class="blockquote">
+								<p class="mb-0">"WorldBay is my go-to platform for finding unique products from
+									different
+									countries. Love the shopping experience!"</p>
+								<br>
+								<footer class="blockquote-footer">John Doe</footer>
+							</blockquote>
+						</div>
+						<div class="carousel-item">
+							<blockquote class="blockquote">
+								<p class="mb-0">"I've been selling on WorldBay for years. It's the best platform for
+									reaching a
+									global audience."</p>
+								<br>
+								<footer class="blockquote-footer">Jane Smith</footer>
+							</blockquote>
+						</div>
+						<div class="carousel-item">
+							<blockquote class="blockquote">
+								<p class="mb-0">"The customer support team at WorldBay is fantastic. They always go
+									above and
+									beyond to assist."</p>
+								<br>
+								<footer class="blockquote-footer">Michael Johnson</footer>
+							</blockquote>
+						</div>
+					</div>
+					<button class="carousel-control-prev" type="button" data-bs-target="#testimonial-carousel"
+						data-bs-slide="prev">
+						<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+						<span class="visually-hidden">Previous</span>
+					</button>
+					<button class="carousel-control-next" type="button" data-bs-target="#testimonial-carousel"
+						data-bs-slide="next">
+						<span class="carousel-control-next-icon" aria-hidden="true"></span>
+						<span class="visually-hidden">Next</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Join Our Community -->
+	<div class="container-fluid join-community">
+		<div class="row align-items-center justify-content-center mt-5">
+			<div class="col text-center">
+				<h2 class="community-title">Join Our Community</h2>
+				<p>Become a part of the WorldBay family! Follow us on social media for the latest updates, promotions,
+					and
+					more.</p>
+				<div class="social-icons mt-4">
+					<!-- Add your social media icons and links here -->
+					<a href="#" class="me-3"><i class="fab fa-facebook-f"></i></a>
+					<a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
+					<a href="#" class="me-3"><i class="fab fa-instagram"></i></a>
+					<a href="#" class="me-3"><i class="fab fa-linkedin"></i></a>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div th:replace="fragments/footer"></div>
-	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
 		crossorigin="anonymous"></script>
 </body>

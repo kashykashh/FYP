@@ -51,4 +51,28 @@ public class fypHomeController {
 		model.addAttribute("errorMessage", "Oops! Access Denied.");
 		return "403";
 	}
+
+	@GetMapping("/help_center")
+	public String helpCenter() {
+
+		return "help_center";
+	}
+
+	@GetMapping("/contact_us")
+	public String contactUs() {
+
+		return "contact_us";
+	}
+
+	@GetMapping("/faq")
+	public String faq() {
+
+		return "faq";
+	}
+
+	@GetMapping("/terms_of_service")
+	public String termsOfService() {
+
+		return "terms_of_service";
+	}
 }

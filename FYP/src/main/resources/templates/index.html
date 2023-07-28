@@ -31,26 +31,36 @@
 			height: 250px;
 		}
 
-		.carousel-control-prev-icon,
-		.carousel-control-next-icon {
-			background-color: #333;
-			opacity: 0.8;
-		}
-
+		/* Carousel buttons */
 		.carousel-control-prev,
 		.carousel-control-next {
-			width: 35px;
-			height: 35px;
+			background-color: rgba(0, 0, 0, 0.1);
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			line-height: 40px;
+			font-size: 24px;
 		}
 
-		.carousel-control-prev-icon:before,
-		.carousel-control-next-icon:before {
+		.carousel-control-prev-icon,
+		.carousel-control-next-icon {
 			color: #fff;
+			transition: color 0.3s;
 		}
 
 		.carousel-control-prev:hover,
 		.carousel-control-next:hover {
-			background-color: #555;
+			background-color: rgba(0, 0, 0, 0.2);
+		}
+
+		/* Center carousel controls on small devices */
+		@media (max-width: 576px) {
+
+			.carousel-control-prev,
+			.carousel-control-next {
+				left: 50%;
+				transform: translateX(-50%);
+			}
 		}
 	</style>
 </head>
@@ -84,6 +94,7 @@
 						</div>
 					</th:block>
 				</div>
+				<!-- Advertisement Carousel Controls -->
 				<button class="carousel-control-prev" type="button" data-bs-target="#advertisementCarousel"
 					data-bs-slide="prev">
 					<span class="carousel-control-prev-icon" aria-hidden="true"></span>
