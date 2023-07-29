@@ -41,7 +41,7 @@ public class TransactionController {
 	@Autowired
 	private OrderItemRepository orderItemRepository;
 
-	@GetMapping("/transactionHistory")
+	@GetMapping("/purchaseHistory")
 	public String viewTransactionHistory(Model model, Principal principal) {
 		UserDetail loggedInUser = (UserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Long loggedInUserId = loggedInUser.getUser().getId();
@@ -52,7 +52,7 @@ public class TransactionController {
 
 		model.addAttribute("OrderItemList", OrderItemList);
 
-		return "transactions";
+		return "purchaseHistory";
 	}
 
 	@GetMapping("/user/{id}/transactions")
@@ -66,18 +66,6 @@ public class TransactionController {
 			model.addAttribute("transactions", transactions);
 		}
 		return "viewUserTransactions";
-	}
-
-	@GetMapping("/purchaseHistory")
-	public String showPurchaseHistory(Model model) {
-		List<OrderItem> orderItems = orderItemService.retrieveOrderItems();
-
-		// Retrieve only the orderItem.orderId values and store them in a separate list
-		List<String> orderItemIds = orderItems.stream().map(OrderItem::getOrderId).collect(Collectors.toList());
-
-		model.addAttribute("OrderItemList", orderItems);
-		model.addAttribute("orderItemIds", orderItemIds);
-		return "purchaseHistory";
 	}
 
 	@GetMapping("/transactionSuccess")

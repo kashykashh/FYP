@@ -13,17 +13,17 @@
 package FYP;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -38,6 +38,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -97,13 +98,25 @@ public class ItemController {
 		User loggedInUser = userRepository.getById(getLoggedInUserId());
 		item.setUser(loggedInUser);
 
-		// Perform image moderation before saving the image
-		String moderationResult = performImageModeration(imgFile, loggedInUser);
-		if (moderationResult.equalsIgnoreCase("accept")) {
-			// Save the image in the database and file system
-			Item savedItem = itemRepository.save(item);
+		try {
+			if (imgFile == null || imgFile.isEmpty()) {
+				// Show an error message because the image is required
+				model.addAttribute("imageError", "Please upload an image for the item.");
 
-			try {
+				// Add the list of categories to the model so that the form can be repopulated
+				List<Category> catList = categoryRepository.findAll();
+				model.addAttribute("catList", catList);
+
+				return "add_item";
+			}
+
+			// Perform image moderation before saving the image
+			String moderationResult = performImageModeration(imgFile, loggedInUser);
+
+			if (moderationResult.equalsIgnoreCase("accept")) {
+				// Save the image in the database and file system
+				Item savedItem = itemRepository.save(item);
+
 				String uploadDir = "uploads/items/" + savedItem.getId();
 				Path uploadPath = Paths.get(uploadDir);
 
@@ -115,23 +128,23 @@ public class ItemController {
 
 				Files.copy(imgFile.getInputStream(), fileToCreatePath, StandardCopyOption.REPLACE_EXISTING);
 
-			} catch (IOException io) {
-				io.printStackTrace();
+				return "redirect:/items";
+			} else {
+				// Show an error message because the image was rejected
+				model.addAttribute("imageError",
+						"The image was rejected due to inappropriate content. " + "You have "
+								+ (MAX_MODERATION_REJECTS - loggedInUser.getModerationFailures())
+								+ " attempt(s) left before your account is banned. Please upload a different image.");
+
+				// Add the list of categories to the model so that the form can be repopulated
+				List<Category> catList = categoryRepository.findAll();
+				model.addAttribute("catList", catList);
+
+				return "add_item";
 			}
-
-			return "redirect:/items";
-		} else {
-			// Show an error message because the image was rejected
-			model.addAttribute("imageError",
-					"The image was rejected due to inappropriate content. " + "You have "
-							+ (MAX_MODERATION_REJECTS - loggedInUser.getModerationFailures())
-							+ " attempts left before your account is banned.");
-
-			// Add the list of categories to the model so that the form can be repopulated
-			List<Category> catList = categoryRepository.findAll();
-			model.addAttribute("catList", catList);
-
-			return "add_item";
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "error";
 		}
 	}
 
@@ -154,63 +167,83 @@ public class ItemController {
 		Integer selectedDuration = item.isAdvertise() ? item.getDuration() : null;
 		model.addAttribute("selectedDuration", selectedDuration);
 
+		if (model.containsAttribute("imageError")) {
+			model.addAttribute("imageError", model.getAttribute("imageError"));
+		}
+
 		return "edit_item";
 	}
 
 	@PostMapping("/items/edit/{id}")
-	public String saveUpdatedItem(@PathVariable("id") Long id, Item updatedItem,
+	public String saveUpdatedItem(@PathVariable("id") Long id, @ModelAttribute Item updatedItem,
 			@RequestParam(value = "itemImage", required = false) MultipartFile imgFile, Model model) {
 		Item existingItem = itemRepository.getById(id); // Retrieve the existing item
 
-		String imageName = imgFile != null && !imgFile.isEmpty() ? imgFile.getOriginalFilename()
-				: existingItem.getImgName();
-		updatedItem.setImgName(imageName); // Set the imgName to the existing image name if no new image is uploaded
+		// Set the imgName to the existing image name if no new image is uploaded
+		if (imgFile != null && !imgFile.isEmpty()) {
+			String imageName = imgFile.getOriginalFilename();
+			updatedItem.setImgName(imageName);
+		} else {
+			updatedItem.setImgName(existingItem.getImgName());
+		}
 
 		User loggedInUser = userRepository.getById(getLoggedInUserId());
+
 		if (loggedInUser != null) {
-			if (!loggedInUser.getRole().equalsIgnoreCase("ROLE_ADMIN")) { // Check if the user is not an admin
+			// Check if the user is not an admin
+			if (!loggedInUser.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
 				updatedItem.setUser(loggedInUser);
 			} else {
-				updatedItem.setUser(existingItem.getUser()); // Set the original user if the user is an admin
+				// Set the original user if the user is an admin
+				updatedItem.setUser(existingItem.getUser());
 			}
+
 			updatedItem.setId(id); // Set the ID of the updated item
 
-			// Perform image moderation before saving the image
-			String moderationResult = performImageModeration(imgFile, loggedInUser);
-			if (moderationResult.equalsIgnoreCase("accept")) {
+			try {
+				// Perform image moderation only if a new image is uploaded
+				if (imgFile != null && !imgFile.isEmpty()) {
+					// Perform image moderation before saving the image
+					String moderationResult = performImageModeration(imgFile, loggedInUser);
+
+					if (moderationResult.equalsIgnoreCase("reject")) {
+						// Show an error message because the image was rejected
+						model.addAttribute("imageError",
+								"The image was rejected due to inappropriate content. " + "You have "
+										+ (MAX_MODERATION_REJECTS - loggedInUser.getModerationFailures())
+										+ " attempt(s) left before your account is banned. Please upload a different image.");
+
+						// Add the list of categories to the model so that the form can be repopulated
+						List<Category> catList = categoryRepository.findAll();
+						model.addAttribute("catList", catList);
+						model.addAttribute("imageModerationStatus", moderationResult);
+						Integer selectedDuration = existingItem.isAdvertise() ? existingItem.getDuration() : null;
+						model.addAttribute("selectedDuration", selectedDuration);
+						model.addAttribute("item", existingItem);
+						return "edit_item";
+					}
+				}
+
 				// Update the existing item with the updated fields
 				Item savedItem = itemRepository.save(updatedItem);
 
-				try {
-					if (imgFile != null && !imgFile.isEmpty()) {
-						String uploadDir = "uploads/items/" + savedItem.getId();
-						Path uploadPath = Paths.get(uploadDir);
+				if (imgFile != null && !imgFile.isEmpty()) {
+					String uploadDir = "uploads/items/" + savedItem.getId();
+					Path uploadPath = Paths.get(uploadDir);
 
-						if (!Files.exists(uploadPath)) {
-							Files.createDirectories(uploadPath);
-						}
-
-						Path fileToCreatePath = uploadPath.resolve(imageName);
-
-						Files.copy(imgFile.getInputStream(), fileToCreatePath, StandardCopyOption.REPLACE_EXISTING);
+					if (!Files.exists(uploadPath)) {
+						Files.createDirectories(uploadPath);
 					}
 
-				} catch (IOException io) {
-					io.printStackTrace();
+					Path fileToCreatePath = uploadPath.resolve(savedItem.getImgName());
+
+					Files.copy(imgFile.getInputStream(), fileToCreatePath, StandardCopyOption.REPLACE_EXISTING);
 				}
 
 				return "redirect:/items";
-			} else {
-				// Show an error message because the image was rejected
-				model.addAttribute("error",
-						"The image was rejected due to inappropriate content. Please upload a different image.");
-				// Add the list of categories to the model so that the form can be repopulated
-				List<Category> catList = categoryRepository.findAll();
-				model.addAttribute("catList", catList);
-				Integer selectedDuration = existingItem.isAdvertise() ? existingItem.getDuration() : null;
-				model.addAttribute("selectedDuration", selectedDuration);
-				model.addAttribute("item", existingItem);
-				return "edit_item";
+			} catch (IOException e) {
+				e.printStackTrace();
+				return "error";
 			}
 		} else {
 			return "error";
@@ -238,91 +271,95 @@ public class ItemController {
 
 	// Helper method to perform image moderation
 	private String performImageModeration(MultipartFile imgFile, User user) {
-		String workflow = "wfl_eu3wn2MlnUB13ebFiOimJ";
-		String apiUser = "602676279";
-		String apiSecret = "Ev34FhvdZXjWWaJx6UMG";
+		String workflow = "wfl_evkEN3sCtO0C0wOLBV5vH";
+		String apiUser = "62437380";
+		String apiSecret = "wEoFRZnBt4fV3rZZgro7";
 
 		// Create a RestTemplate
 		RestTemplate restTemplate = new RestTemplate();
 
-		// Prepare the request body with form data
-		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-		body.add("media", new FileSystemResource(convertMultiPartToFile(imgFile)));
-		body.add("workflow", workflow);
-		body.add("api_user", apiUser);
-		body.add("api_secret", apiSecret);
+		try {
+			// Prepare the request body with form data
+			MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+			body.add("media", new ByteArrayResource(imgFile.getBytes()) {
+				@Override
+				public String getFilename() {
+					return imgFile.getOriginalFilename();
+				}
+			});
+			body.add("workflow", workflow);
+			body.add("api_user", apiUser);
+			body.add("api_secret", apiSecret);
 
-		// Prepare the request headers
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+			// Prepare the request headers
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-		// Create the HTTP entity with the headers and body
-		HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+			// Create the HTTP entity with the headers and body
+			HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-		// Make the API call
-		ResponseEntity<String> responseEntity = restTemplate.exchange(
-				"https://api.sightengine.com/1.0/check-workflow.json", HttpMethod.POST, requestEntity, String.class);
+			// Make the API call
+			ResponseEntity<String> responseEntity = restTemplate.exchange(
+					"https://api.sightengine.com/1.0/check-workflow.json", HttpMethod.POST, requestEntity,
+					String.class);
 
-		// Handle the API response
-		if (responseEntity.getStatusCode() == HttpStatus.OK) {
-			String response = responseEntity.getBody();
+			// Handle the API response
+			if (responseEntity.getStatusCode() == HttpStatus.OK) {
+				String response = responseEntity.getBody();
 
-			// Parse the response to get the moderation result
-			JSONObject jsonResponse = new JSONObject(response);
+				// Parse the response to get the moderation result
+				JSONObject jsonResponse = new JSONObject(response);
 
-			// Check if the response contains the "status" field
-			if (jsonResponse.has("status") && jsonResponse.getString("status").equals("success")) {
-				// Check if the response contains the "summary" field
-				if (jsonResponse.has("summary")) {
-					// Get the "action" value from the "summary" object
-					JSONObject summary = jsonResponse.getJSONObject("summary");
-					if (summary.has("action")) {
-						String moderationResult = summary.getString("action");
+				// Check if the response contains the "status" field
+				if (jsonResponse.has("status") && jsonResponse.getString("status").equals("success")) {
+					// Check if the response contains the "summary" field
+					if (jsonResponse.has("summary")) {
+						// Get the "action" value from the "summary" object
+						JSONObject summary = jsonResponse.getJSONObject("summary");
+						if (summary.has("action")) {
+							String moderationResult = summary.getString("action");
 
-						if (moderationResult.equals("reject")) {
-							// Increment the user's moderation failures count
-							int failures = user.getModerationFailures();
-							user.setModerationFailures(failures + 1);
-							userRepository.save(user);
-
-							// Check if the user should be banned
-							if (user.getModerationFailures() >= MAX_MODERATION_REJECTS) {
-								user.setBanned(true);
+							if (moderationResult.equals("reject")) {
+								// Increment the user's moderation failures count
+								int failures = user.getModerationFailures();
+								user.setModerationFailures(failures + 1);
 								userRepository.save(user);
-								
-							}
-						}
 
-						return moderationResult;
+								// Check if the user should be banned
+								if (user.getModerationFailures() >= MAX_MODERATION_REJECTS) {
+									user.setBanned(true);
+									userRepository.save(user);
+								}
+							}
+
+							return moderationResult;
+						}
 					}
-					
-					
 				}
 			}
+			return "reject";
+		} catch (IOException e) {
+			// Log the exception and return a moderation failure
+			e.printStackTrace();
+			return "reject";
 		}
-
-		// In case of an error or if the moderation result is not available, return
-		// "reject"
-		return "reject";
 	}
-	
-	
 
-	// Helper method to convert MultipartFile to File
-	private File convertMultiPartToFile(MultipartFile file) {
-		File convFile = new File(file.getOriginalFilename());
+	// Convert MultipartFile to File
+	private File convertMultiPartToFile(MultipartFile file) throws IOException {
 		try {
-			FileOutputStream fos = new FileOutputStream(convFile);
-			fos.write(file.getBytes());
-			fos.close();
+			String tempDir = System.getProperty("java.io.tmpdir");
+			String tempFileName = "upload_" + UUID.randomUUID().toString() + "_" + System.nanoTime() + ".tmp";
+			File convFile = new File(tempDir + File.separator + tempFileName);
+			file.transferTo(convFile);
+			return convFile;
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw e;
 		}
-		return convFile;
 	}
 
 	// Admin Unban users
-
 	@GetMapping("/admin")
 	public String adminPage(Model model) {
 		List<User> bannedUsers = userRepository.findByBannedTrue();

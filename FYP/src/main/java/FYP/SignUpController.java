@@ -40,106 +40,99 @@ import org.springframework.web.client.RestTemplate;
 @Controller
 public class SignUpController {
 
-		@Autowired
-		private UserService userService;
+	@Autowired
+	private UserService userService;
 
-	    @Value("${sightengine.api.user}")
-	    private String sightengineApiUser;
+	@Value("${sightengine.api.user}")
+	private String sightengineApiUser;
 
-	    @Value("${sightengine.api.secret}")
-	    private String sightengineApiSecret;
+	@Value("${sightengine.api.secret}")
+	private String sightengineApiSecret;
 
-	    
-	    
-	    
+	@GetMapping("/register")
+	public String showSignUpForm(Model model) {
+		model.addAttribute("user", new User());
+		return "signup";
+	}
 
-    @GetMapping("/register")
-    public String showSignUpForm(Model model) {
-        model.addAttribute("user", new User());
-        return "signup"; // Make sure you have the "signup.html" Thymeleaf template
-    }
+	@PostMapping("/register")
+	public String registerUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, Model model,
+			@RequestParam("selectedRole") String selectedRole) {
+		try {
+			boolean isUsernameAcceptable = isUsernameModerate(user.getUsername());
+			if (!isUsernameAcceptable) {
+				model.addAttribute("error", "Inappropriate Username. Please choose a different username.");
+				return "signup";
+			}
 
-    @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult,
-                               Model model, @RequestParam("selectedRole") String selectedRole) {
-        try {
-            boolean isUsernameAcceptable = isUsernameModerate(user.getUsername());
-            if (!isUsernameAcceptable) {
-                model.addAttribute("error", "Username moderation failed. Please choose a different username.");
-                return "signup";
-            }
+			if (bindingResult.hasErrors()) {
+				return "signup";
+			}
 
-            if (bindingResult.hasErrors()) {
-                // There are validation errors, return to the signup page with error messages
-                return "signup";
-            }
+			if ("buyer".equals(selectedRole)) {
+				userService.saveUserWithBuyerRole(user);
+			} else if ("seller".equals(selectedRole)) {
+				userService.saveUserWithSellerRole(user);
+			}
+			return "redirect:/login";
+		} catch (Exception e) {
+			model.addAttribute("error", "Failed to register user. Please try again.");
+			return "signup";
+		}
+	}
 
-            if ("buyer".equals(selectedRole)) {
-                userService.saveUserWithBuyerRole(user);
-            } else if ("seller".equals(selectedRole)) {
-                userService.saveUserWithSellerRole(user);
-            }
-            return "redirect:/login"; // Redirect to the login page after successful registration
-        } catch (Exception e) {
-            model.addAttribute("error", "Failed to register user. Please try again.");
-            return "signup"; // Return to the signup page with an error message
-        }
-    }
+	private boolean isUsernameModerate(String username) {
+		try {
+			// Build the request body
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-    private boolean isUsernameModerate(String username) {
-        try {
-            // Build the request body
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+			MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
+			bodyMap.add("text", username);
+			bodyMap.add("lang", "en");
+			bodyMap.add("mode", "username");
+			bodyMap.add("api_user", sightengineApiUser);
+			bodyMap.add("api_secret", sightengineApiSecret);
 
-            MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
-            bodyMap.add("text", username);
-            bodyMap.add("lang", "en");
-            bodyMap.add("mode", "username");
-            bodyMap.add("api_user", sightengineApiUser);
-            bodyMap.add("api_secret", sightengineApiSecret);
+			HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(bodyMap, headers);
 
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(bodyMap, headers);
+			// Make the API call
+			ResponseEntity<String> responseEntity = new RestTemplate()
+					.postForEntity("https://api.sightengine.com/1.0/text/check.json", requestEntity, String.class);
 
-            // Make the API call
-            ResponseEntity<String> responseEntity = new RestTemplate().postForEntity(
-                    "https://api.sightengine.com/1.0/text/check.json",
-                    requestEntity,
-                    String.class
-            );
+			// Log the API response on the console
+			System.out.println("API Response:");
+			System.out.println(responseEntity.getBody());
 
-            // Log the API response on the console
-            System.out.println("API Response:");
-            System.out.println(responseEntity.getBody());
+			// Handle the API response
+			if (responseEntity.getStatusCode() == HttpStatus.OK) {
+				String response = responseEntity.getBody();
 
-            // Handle the API response
-            if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                String response = responseEntity.getBody();
+				// Parse the response to get the moderation result
+				JSONObject jsonResponse = new JSONObject(response);
 
-                // Parse the response to get the moderation result
-                JSONObject jsonResponse = new JSONObject(response);
+				// Check if the response contains the "profanity" field
+				if (jsonResponse.has("profanity")) {
+					// Get the "matches" array from the "profanity" object
+					JSONArray matches = jsonResponse.getJSONObject("profanity").getJSONArray("matches");
+					return matches.length() == 0;
+				}
+			}
 
-                // Check if the response contains the "profanity" field
-                if (jsonResponse.has("profanity")) {
-                    // Get the "matches" array from the "profanity" object
-                    JSONArray matches = jsonResponse.getJSONObject("profanity").getJSONArray("matches");
-                    return matches.length() == 0;
-                }
-            }
+		} catch (Exception e) {
+			// Handle any exceptions here, e.g., API call failure
+			e.printStackTrace();
+		}
 
-        } catch (Exception e) {
-            // Handle any exceptions here, e.g., API call failure
-            e.printStackTrace();
-        }
+		// If something went wrong or the response doesn't have the expected structure,
+		// assume the username is acceptable
+		return true;
+	}
 
-        // If something went wrong or the response doesn't have the expected structure, assume the username is acceptable
-        return true;
-    }
-
-    @GetMapping("/list_users")
-    public String viewUsersList(Model model) {
-        List<User> listUsers = userService.listAll();
-        model.addAttribute("listUsers", listUsers);
-        return "users";
-    }
+	@GetMapping("/list_users")
+	public String viewUsersList(Model model) {
+		List<User> listUsers = userService.listAll();
+		model.addAttribute("listUsers", listUsers);
+		return "users";
+	}
 }
