@@ -143,28 +143,31 @@
 			</script>
 
 			<div class="mb-3 col-5">
-				<label for="itemImage" class="form-label">Item Image:</label> <input
-					id="itemImage" class="form-control" type="file" name="itemImage"
-					accept="image/png, image/jpeg" onchange="previewImage(event)" /> <small
-					id="fileSizeMessage" class="form-text text-muted">Image
-					file size should not exceed 20MB.</small> <br> <img id="oldImage"
+				<label for="itemImage" class="form-label">Item Image:</label>
+				 <input id="itemImage" class="form-control" type="file" name="itemImage"
+					accept="image/png, image/jpeg" onchange="previewImage(event)" /> 
+					
+				<small id="fileSizeMessage" class="form-text text-muted">Image
+					file size should not exceed 20MB.</small> 
+				<br> 
+				<img id="oldImage"
 					class="mt-3 img-fluid"
 					th:if="${item.imgName != null && item.imgName != ''}"
 					th:src="@{/uploads/items/{id}/{imgpath}(id=${item.id}, imgpath=${item.imgName})}" />
 				<img id="newImage" class="mt-3 img-fluid" style="display: none;" />
 			</div>
-			<div th:if="${item.user.moderationFailures lt 3}"
+
+
+			<div th:if="${item.user.moderationFailures > 0}"
 				class="alert alert-danger">
 				The image was rejected due to inappropriate content. Please upload a
 				different image. <span th:text="${3 - item.user.moderationFailures}"></span>
 				attempts left before your account is banned.
 			</div>
+			
+			
 
-			<!-- 			<div th:if="${imageError}" class="alert alert-danger"> -->
-			<!-- 				<p th:text="${imageError}"></p> -->
-			<!-- 			</div> -->
 
-			<!-- Add a section to display the file size error message -->
 			<div th:if="${fileSizeError}" class="alert alert-danger" role="alert">
 				<strong>Error:</strong> <span th:text="${fileSizeError}"></span>
 			</div>

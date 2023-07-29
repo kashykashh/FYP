@@ -289,11 +289,14 @@ public class ItemController {
 							if (user.getModerationFailures() >= MAX_MODERATION_REJECTS) {
 								user.setBanned(true);
 								userRepository.save(user);
+								
 							}
 						}
 
 						return moderationResult;
 					}
+					
+					
 				}
 			}
 		}
@@ -302,6 +305,8 @@ public class ItemController {
 		// "reject"
 		return "reject";
 	}
+	
+	
 
 	// Helper method to convert MultipartFile to File
 	private File convertMultiPartToFile(MultipartFile file) {

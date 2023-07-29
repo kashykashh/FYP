@@ -186,7 +186,7 @@ public class CartItemController {
 		model.addAttribute("orderId", orderId);
 
 		// Send email
-		String subject = "Booklink order is confirmed!";
+		String subject = "WorldBay order is confirmed!";
 		String body = "Thank you for your order!\n" + "Order ID: " + orderId + "\n" + "Transaction ID: "
 				+ transactionId;
 		String to = currentUser.getEmail();
