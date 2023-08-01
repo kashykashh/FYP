@@ -127,14 +127,16 @@
 
 	<script>
 		var rows = Array.from(document.getElementById("userTable").getElementsByTagName("tr")).slice(1);
-		var rowsPerPage = 5; // Number of rows to show per page
+		var rowsPerPage = parseInt(document.getElementById("rowsPerPage").value);
 		var totalPages = Math.ceil(rows.length / rowsPerPage);
 		var currentPage = 1;
 
+		// Function to display the rows for the current page and update pagination
 		function displayRows() {
 			var startIndex = (currentPage - 1) * rowsPerPage;
-			var endIndex = Math.min(startIndex + rowsPerPage, rows.length);
+			var endIndex = startIndex + rowsPerPage;
 
+			// Display rows for the current page
 			for (var i = 0; i < rows.length; i++) {
 				if (i >= startIndex && i < endIndex) {
 					rows[i].style.display = "";
@@ -143,6 +145,7 @@
 				}
 			}
 
+			// Update pagination links
 			var pagination = document.getElementById("pagination");
 			var paginationHTML = "";
 			for (var page = 1; page <= totalPages; page++) {
@@ -155,6 +158,7 @@
 			pagination.innerHTML = paginationHTML;
 		}
 
+		// Function to change the current page
 		function changePage(page) {
 			currentPage = page;
 			displayRows();
@@ -177,7 +181,7 @@
 			var filter = input.value.toUpperCase();
 
 			for (var i = 0; i < rows.length; i++) {
-				var usernameCell = rows[i].getElementsByTagName("td")[0];  // Index 0 for username column
+				var usernameCell = rows[i].getElementsByTagName("td")[1]; // Index 1 for username column
 				if (usernameCell) {
 					var username = usernameCell.textContent || usernameCell.innerText;
 					if (username.toUpperCase().indexOf(filter) > -1) {

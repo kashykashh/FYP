@@ -14,6 +14,8 @@ package FYP;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -63,6 +65,23 @@ public class ItemController {
 	private CategoryRepository categoryRepository;
 
 	private final int MAX_MODERATION_REJECTS = 3; // Maximum allowed image moderation rejects
+
+	@GetMapping("/items/updatePrices")
+	public String updateItemPrices(@RequestParam("exchangeRate") double exchangeRate) {
+		List<Item> itemList = itemRepository.findAll();
+
+		for (Item item : itemList) {
+			double updatedPrice = item.getBasePrice() * exchangeRate;
+
+			// Round the updated price to 2 decimal places
+			BigDecimal roundedPrice = BigDecimal.valueOf(updatedPrice).setScale(2, RoundingMode.HALF_UP);
+			item.setPrice(roundedPrice.doubleValue());
+
+			itemRepository.save(item);
+		}
+
+		return "redirect:/items";
+	}
 
 	@GetMapping("/items")
 	public String viewItems(Model model) {
@@ -208,10 +227,9 @@ public class ItemController {
 
 					if (moderationResult.equalsIgnoreCase("reject")) {
 						// Show an error message because the image was rejected
-						model.addAttribute("imageError",
-								"The image was rejected due to inappropriate content. " + "You have "
-										+ (MAX_MODERATION_REJECTS - loggedInUser.getModerationFailures())
-										+ " attempt(s) left before your account is banned. Please upload a different image.");
+						model.addAttribute("imageError", "The image was rejected due to inappropriate content. "
+								+ "You have " + (MAX_MODERATION_REJECTS - loggedInUser.getModerationFailures())
+								+ " attempt(s) left before your account is banned. Please upload a different image.");
 
 						// Add the list of categories to the model so that the form can be repopulated
 						List<Category> catList = categoryRepository.findAll();

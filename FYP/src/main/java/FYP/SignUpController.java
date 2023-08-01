@@ -13,7 +13,9 @@
 
 package FYP;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
@@ -66,6 +69,20 @@ public class SignUpController {
 			}
 
 			if (bindingResult.hasErrors()) {
+				return "signup";
+			}
+
+			// Check if the username is available in the database
+			boolean usernameExists = userService.usernameExists(user.getUsername());
+			if (usernameExists) {
+				model.addAttribute("error", "Username is already taken. Please choose a different username.");
+				return "signup";
+			}
+
+			// Check if the email is already registered in the database
+			boolean emailExists = userService.emailExists(user.getEmail());
+			if (emailExists) {
+				model.addAttribute("error", "Email is already registered. Please use a different email.");
 				return "signup";
 			}
 
@@ -134,5 +151,23 @@ public class SignUpController {
 		List<User> listUsers = userService.listAll();
 		model.addAttribute("listUsers", listUsers);
 		return "users";
+	}
+
+	@GetMapping("/checkUsername")
+	@ResponseBody
+	public Map<String, Boolean> checkUsernameAvailability(@RequestParam("username") String username) {
+		Map<String, Boolean> response = new HashMap<>();
+		boolean usernameExists = userService.usernameExists(username);
+		response.put("available", !usernameExists);
+		return response;
+	}
+
+	@GetMapping("/checkEmail")
+	@ResponseBody
+	public Map<String, Boolean> checkEmailAvailability(@RequestParam("email") String email) {
+		Map<String, Boolean> response = new HashMap<>();
+		boolean emailExists = userService.emailExists(email);
+		response.put("available", !emailExists);
+		return response;
 	}
 }

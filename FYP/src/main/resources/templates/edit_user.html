@@ -20,6 +20,17 @@
 					<label for="user_name" class="form-label">User</label>
 					<input id="user_name" class="form-control" type="text" th:field="*{name}">
 				</div>
+
+				<div class="mb-3 col-5">
+					<label for="user_username" class="form-label">Username</label>
+					<input id="user_username" class="form-control" type="text" th:field="*{username}"
+						th:value="${user.username}">
+				</div>
+				<div class="mb-3 col-5">
+					<label for="user_email" class="form-label">Email</label>
+					<input id="user_email" class="form-control" type="email" th:field="*{email}"
+						th:value="${user.email}">
+				</div>
 				<p>Current Role: <span th:text="${user.role}"></span></p>
 				<div class="mb-3">
 					<label for="selectedRole" class="form-label">Change Role:</label>

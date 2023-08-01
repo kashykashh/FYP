@@ -61,25 +61,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-	    String[] staticResources = {"/css/**", "/images/**", "/fonts/**", "/uploads/**", "/bootstrap/*/*"};
+		String[] staticResources = { "/css/**", "/images/**", "/fonts/**", "/uploads/**", "/bootstrap/*/*" };
 
-	    http.authorizeRequests()
-	    	.antMatchers("/forgot-password/**", "/password-reset-requested/**", "/password-reset-success/**", "/reset-password/**", "/cart/process_order/**").permitAll()
-	        .antMatchers("/categories/add", "/categories/edit/*", "/categories/save", "/categories/delete/*", "/user/**").hasRole("ADMIN")
-	        .antMatchers("/items/add", "/items/edit/{id}", "/items/save", "/items/delete/{id}").hasAnyRole("ADMIN", "SELLER")
-	        .antMatchers("/items/{id}", "/categories/{id}", "/about").permitAll()
-	        .antMatchers("/sellerInventory/**").hasRole("SELLER")
-	        .antMatchers("/adminInventory/**").hasRole("ADMIN")
-	        .antMatchers("/", "/register/**", "/login").permitAll()
-	        .antMatchers(staticResources).permitAll()
-	        .anyRequest().authenticated()
-	        .and()
-	        .formLogin()
-	            .loginPage("/login").permitAll()
-	            .defaultSuccessUrl("/", true)
-	        .and()
-	        .logout().logoutUrl("/logout").permitAll()
-	        .and()
-	        .exceptionHandling().accessDeniedPage("/403");
+		http.authorizeRequests()
+				.antMatchers("/forgot-password/**", "/password-reset-requested/**", "/password-reset-success/**",
+						"/reset-password/**", "/cart/process_order/**")
+				.permitAll()
+				.antMatchers("/categories/add", "/categories/edit/*", "/categories/save", "/categories/delete/*",
+						"/user/**")
+				.hasRole("ADMIN").antMatchers("/items/add", "/items/edit/{id}", "/items/save", "/items/delete/{id}")
+				.hasAnyRole("ADMIN", "SELLER").antMatchers("/items/{id}", "/categories/{id}", "/about").permitAll()
+				.antMatchers("/sellerInventory/**").hasRole("SELLER").antMatchers("/adminInventory/**").hasRole("ADMIN")
+				.antMatchers("/", "/register/**", "/login").permitAll().antMatchers(staticResources).permitAll()
+				.anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()
+				.defaultSuccessUrl("/", true).and().logout().logoutUrl("/logout").permitAll().and().exceptionHandling()
+				.accessDeniedPage("/403");
 	}
 }

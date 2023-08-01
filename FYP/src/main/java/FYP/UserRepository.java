@@ -33,6 +33,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	public User findByResetToken(String resetToken);
 
+	boolean existsByUsername(String username);
+	
+	boolean existsByEmail(String email);
+
 	@Query("SELECT u FROM User u WHERE u.banned = true")
 	List<User> findByBannedTrue();
 

@@ -148,7 +148,6 @@ public class CartItemController {
 			int qtyInCart = currentCartItem.getQuantity();
 			int qtyToUpdate = qtyInventory - qtyInCart;
 			currentItem.setQuantity(qtyToUpdate);
-			System.out.println("The current quantity in the inventory is supposed to be" + qtyToUpdate);
 			itemRepo.save(currentItem);
 
 			// Update top selling item

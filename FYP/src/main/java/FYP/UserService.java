@@ -33,6 +33,14 @@ public class UserService {
 		return userRepository.findByEmail(email);
 	}
 
+	public boolean usernameExists(String username) {
+		return userRepository.existsByUsername(username);
+	}
+
+	public boolean emailExists(String email) {
+		return userRepository.existsByEmail(email);
+	}
+
 	public void saveUserWithSellerRole(User user) {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		String encodedpassword = encoder.encode(user.getPassword());

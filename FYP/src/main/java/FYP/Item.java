@@ -1,5 +1,4 @@
 
-
 /**
  * 
  * I declare that this code was written by me, 21033239. 
@@ -44,7 +43,7 @@ public class Item {
 	private String imgName;
 	private boolean advertise;
 	private Integer duration;
-	private String currency;
+	private double basePrice;
 
 	@Column(name = "previous_quantity", nullable = false, columnDefinition = "INT DEFAULT 0")
 	private Integer previousQuantity;
@@ -166,11 +165,11 @@ public class Item {
 		this.duration = duration;
 	}
 
-	public String getCurrency() {
-		return currency;
+	public double getBasePrice() {
+		return basePrice;
 	}
 
-	public void setCurrency(String currency) {
-		this.currency = currency;
+	public void setBasePrice(double basePrice) {
+		this.basePrice = basePrice;
 	}
 }

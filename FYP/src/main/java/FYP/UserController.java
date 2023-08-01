@@ -90,24 +90,9 @@ public class UserController {
 		existingUser.setUsername(editedUser.getUsername());
 		existingUser.setEmail(editedUser.getEmail());
 
-		// Check if the password has changed
-		if (editedUser.getPassword() != null && !editedUser.getPassword().isEmpty()
-				&& !editedUser.getPassword().equals(existingUser.getPassword())) {
-			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-			String encodedPassword = encoder.encode(editedUser.getPassword());
-			existingUser.setPassword(encodedPassword);
-		}
-
 		// Update the role only if it has changed
 		if (!selectedRole.equals(existingUser.getRole())) {
-			if (selectedRole.equals("buyer")) {
-				userService.saveUserWithBuyerRole(existingUser);
-			} else if (selectedRole.equals("seller")) {
-				userService.saveUserWithSellerRole(existingUser);
-			} else if (selectedRole.equals("admin")) {
-				userService.saveUserWithAdminRole(existingUser);
-			}
-			// Handle other cases if necessary
+			existingUser.setRole("ROLE_" + selectedRole.toUpperCase());
 		}
 
 		userRepository.save(existingUser);

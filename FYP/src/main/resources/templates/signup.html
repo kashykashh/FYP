@@ -252,6 +252,62 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
 		crossorigin="anonymous"></script>
+
+	<script>
+		function checkUsernameAvailability() {
+			const usernameInput = document.getElementById('username');
+			const errorMessage = document.getElementById('usernameMessage');
+
+			const username = usernameInput.value;
+			if (username === '') {
+				errorMessage.innerHTML = '';
+				return;
+			}
+
+			fetch(`/checkUsername?username=${encodeURIComponent(username)}`)
+				.then((response) => response.json())
+				.then((data) => {
+					if (data.available) {
+						errorMessage.innerHTML = '<span style="color: green;">Username is available!</span>';
+					} else {
+						errorMessage.innerHTML = '<span style="color: red;">Username is already taken.</span>';
+					}
+				})
+				.catch((error) => {
+					console.error('Error checking username availability:', error);
+				});
+		}
+
+		// Call checkUsernameAvailability on input change
+		document.getElementById('username').addEventListener('input', checkUsernameAvailability);
+
+		function checkEmailAvailability() {
+			const emailInput = document.getElementById('email');
+			const errorMessage = document.getElementById('emailMessage');
+
+			const email = emailInput.value;
+			if (email === '') {
+				errorMessage.innerHTML = '';
+				return;
+			}
+
+			fetch(`/checkEmail?email=${encodeURIComponent(email)}`)
+				.then((response) => response.json())
+				.then((data) => {
+					if (data.available) {
+						errorMessage.innerHTML = '<span style="color: green;">Email is available!</span>';
+					} else {
+						errorMessage.innerHTML = '<span style="color: red;">Email is already registered.</span>';
+					}
+				})
+				.catch((error) => {
+					console.error('Error checking email availability:', error);
+				});
+		}
+
+		// Call checkEmailAvailability on input change
+		document.getElementById('email').addEventListener('input', checkEmailAvailability);
+	</script>
 </body>
 
 </html>
