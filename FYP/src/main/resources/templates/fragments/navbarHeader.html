@@ -91,7 +91,7 @@
 					<!-- Cart icon with stacking -->
 					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'') or hasRole(''BUYER'')')}"
 						class="nav-item">
-						<a href="/cart" class="fa-stack nav-link text-white" style="transform: translateY(15%)">
+						<a href="/cart" class="fa-stack nav-link text-white">
 							<i class="fas fa-shopping-cart fa-stack-1x"></i>
 						</a>
 					</li>
