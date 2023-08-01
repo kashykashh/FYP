@@ -102,7 +102,6 @@
 			var tableRows = document.querySelectorAll('tbody tr');
 			tableRows.forEach(function (row) {
 				var itemName = row.querySelector('td:nth-child(1)').textContent;
-				var quantity = parseInt(row.querySelector('td:nth-child(2)').textContent, 10);
 				var revenueValue = parseFloat(row.querySelector('td:nth-child(3)').textContent);
 
 				// Calculate the formatted revenue value with two decimal places
@@ -113,7 +112,6 @@
 
 				itemData.push({
 					itemName: itemName,
-					quantitySold: quantity,
 					revenue: formattedRevenue,
 				});
 			});
@@ -125,14 +123,6 @@
 				data: {
 					labels: itemData.map(item => item.itemName),
 					datasets: [{
-						label: 'Quantity Sold',
-						data: itemData.map(item => item.quantitySold),
-						backgroundColor: 'rgba(75, 192, 192, 0.2)',
-						borderColor: 'rgba(75, 192, 192, 1)',
-						borderWidth: 1,
-						stack: 'combined',
-					},
-					{
 						label: 'Revenue',
 						data: itemData.map(item => item.revenue),
 						backgroundColor: 'rgba(255, 206, 86, 0.2)',
@@ -161,13 +151,7 @@
 										label += ': ';
 									}
 									if (context.dataset.stack === 'combined') {
-										if (context.dataset.label === 'Quantity Sold') {
-											label += context.parsed.y;
-										} else {
-											label += "$" + context.parsed.y.toFixed(2);
-										}
-									} else {
-										label += context.parsed.y;
+										label += "$" + context.parsed.y.toFixed(2);
 									}
 									return label;
 								}
@@ -178,6 +162,7 @@
 			});
 		});
 	</script>
+
 </body>
 
 </html>
