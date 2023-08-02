@@ -70,7 +70,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/categories/add", "/categories/edit/*", "/categories/save", "/categories/delete/*",
 						"/user/**")
 				.hasRole("ADMIN").antMatchers("/items/add", "/items/edit/{id}", "/items/save", "/items/delete/{id}")
-				.hasAnyRole("ADMIN", "SELLER").antMatchers("/items/{id}", "/categories/{id}", "/about").permitAll()
+				.hasAnyRole("ADMIN", "SELLER").antMatchers("/items/{id}", "/categories/{id}", "/about", "/help_center", "/contact_us", "/faq", "/terms_of_service").permitAll()
 				.antMatchers("/sellerInventory/**").hasRole("SELLER").antMatchers("/adminInventory/**").hasRole("ADMIN")
 				.antMatchers("/", "/register/**", "/login").permitAll().antMatchers(staticResources).permitAll()
 				.anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()

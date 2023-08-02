@@ -58,7 +58,7 @@
 					<!-- Dropdown menu for currency selection -->
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle text-white" href="#"
 							id="currencyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Currency: <span id="selectedCurrencyCode">USD</span></a>
+							Currency: <span id="selectedCurrencyCode"></span></a>
 
 						<ul class="dropdown-menu" aria-labelledby="currencyDropdown" id="currencyOptions">
 							<!-- Currency options are here -->
@@ -90,6 +90,7 @@
 						<a class="nav-link text-white" href="/seller/top-selling-items">Top&nbspSelling</a>
 					</li>
 					<li><a class="nav-link text-white" href="/about">About</a></li>
+
 					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
 						<a class="nav-link text-white"
 							th:href="${#authorization.expression('hasRole(''ADMIN'')') ? '/adminInventory' : '/sellerInventory'}">Inventory</a>
@@ -125,98 +126,9 @@
 							href="/register">Sign Up</a></li>
 				</ul>
 			</div>
-
 		</nav>
 	</header>
 	<br>
-	<script>
-		// Function to extract currency code from the URL
-		function getCurrencyFromUrl() {
-			const urlParams = new URLSearchParams(window.location.search);
-			return urlParams.get('currency');
-		}
-
-		// Function to handle currency selection and fetch exchange rate
-		function handleCurrencySelection() {
-			const selectedCurrency = getCurrencyFromUrl();
-			if (selectedCurrency) {
-				fetchExchangeRate(selectedCurrency);
-				// Update the selected currency code in the navbar link
-				document.getElementById('selectedCurrencyCode').textContent = selectedCurrency;
-			}
-		}
-
-		// Function to fetch exchange rate for the selected currency
-		function fetchExchangeRate(currencyCode) {
-			const apiUrl = 'https://openexchangerates.org/api/latest.json?app_id=84eb9f67b6f3484da9c8a4f1916f8580&base=SGD';
-
-			$.getJSON(apiUrl)
-				.done(function (json) {
-					const exchangeRate = json.rates[currencyCode];
-					console.log(`Exchange rate for ${currencyCode}: ${exchangeRate}`);
-
-					// Call the updateItemPrices function to update item prices on the server
-					updateItemPrices(exchangeRate);
-
-				})
-				.fail(function (xhr, status, error) {
-					console.error('Error fetching exchange rate:', error);
-				});
-		}
-
-		// Function to update item prices on the server
-		function updateItemPrices(exchangeRate) {
-			$.ajax({
-				url: '/items/updatePrices',
-				method: 'GET',
-				data: {exchangeRate: exchangeRate},
-				success: function (data) {
-					// Optional: Handle success response if needed
-					console.log('Item prices updated successfully.');
-					// Reload the page to see the updated item prices
-
-				},
-				error: function (xhr, status, error) {
-					// Optional: Handle error response if needed
-					console.error('Error updating item prices:', error);
-				}
-			});
-		}
-
-		// Function to fetch and populate currency options on page load
-		function updateCurrencyOptions() {
-			const apiUrl = 'https://openexchangerates.org/api/currencies.json';
-			$.getJSON(apiUrl)
-				.done(function (json) {
-					const currencyOptions = document.getElementById('currencyOptions');
-					currencyOptions.innerHTML = '';
-
-					for (const currencyCode in json) {
-						const currencyName = json[currencyCode];
-						const option = document.createElement('li');
-						option.innerHTML = `<a class="dropdown-item" href="#">${currencyCode} - ${currencyName}</a>`;
-						option.addEventListener('click', function () {
-							// Update the window.location to navigate to the new URL with currency parameter
-							window.location.href = `/?currency=${currencyCode}`;
-						});
-						currencyOptions.appendChild(option);
-					}
-
-					// Fetch exchange rate for the selected currency on page load
-					handleCurrencySelection();
-				})
-				.fail(function (xhr, status, error) {
-					console.error('Error fetching currency data:', error);
-				});
-		}
-
-		// Attach event listener to the currency dropdown menu to update options on click
-		document.getElementById('currencyDropdown').addEventListener('click', updateCurrencyOptions);
-
-		// Fetch currency options and exchange rate on page load
-		document.addEventListener('DOMContentLoaded', updateCurrencyOptions);
-	</script>
-
 </body>
 
 </html>
