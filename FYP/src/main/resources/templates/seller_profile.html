@@ -181,7 +181,8 @@
 		</div>
 
 		<!-- Display the rating bars using the list with comments -->
-		<div class="star-ratings-container">
+		<div class="star-ratings-container"
+			th:if="${starRatingsPercentage != null && starRatingsPercentage.size() > 0}">
 			<div th:each="rating : ${starRatingsPercentage}" th:class="'star-rating-bar-' + ${rating.key}">
 				<span class="star-rating-label" th:text="${rating.key + ' stars'}"></span>
 				<div class="star-fill" th:style="'width:' + ${rating.value} + '%'"></div>
@@ -206,7 +207,8 @@
 							<div class="card-body">
 								<h5 class="card-title" th:text="${item.name}"></h5>
 								<p class="card-text" th:text="${item.description}"></p>
-								<p class="card-price">$<span th:text="${item.price}"></span></p>
+								<p class="card-price">$<span
+										th:text="${#numbers.formatDecimal(item.price, 1, 2)}"></span></p>
 								<a th:href="@{/items/{id}(id=${item.id})}" class="card-link btn btn-primary">View</a>
 							</div>
 						</div>
@@ -223,7 +225,7 @@
 
 			<!-- Form for users to submit new ratings and reviews -->
 			<form th:action="@{/seller/{sellerId}/addReview(sellerId=${user.id})}" method="post"
-				onsubmit="return validateForm()">
+				onsubmit="return validateForm();">
 				<div class="form-group" style="text-align: left;">
 					<label for="rating">Rating:</label>
 					<div class="star-rating">
@@ -239,15 +241,14 @@
 						<label for="star1"></label>
 					</div>
 				</div>
-				<div id="ratingErrorMessage" style="color: red; display: none;">Please select star rating to post a
-					review</div>
 				<div class="form-group">
 					<label for="comment">Comment:</label>
 					<textarea class="form-control" id="comment" name="comment" rows="3" maxlength="255"></textarea>
 					<small id="remainingCharacters" class="form-text text-muted"></small>
 				</div>
 				<br>
-				<button type="submit" class="btn btn-primary">Submit Review</button>
+				<button type="submit" class="btn btn-primary" onclick="return updateRatingBars();">Submit
+					Review</button>
 			</form>
 
 			<!-- JavaScript code to limit characters and update remaining characters count -->
@@ -297,6 +298,28 @@
 					errorMessage.style.display = 'none';
 					return true; // Allow form submission
 				}
+
+				// Call the function after submitting a new rating and review to update the rating bars
+				function updateRatingBars() {
+					showRatingBars();
+					const starInputs = document.querySelectorAll('input[name="rating"]');
+					let hasRatingWithoutComment = false;
+
+					// Check if any star rating is selected without a comment
+					starInputs.forEach(input => {
+						if (input.checked) {
+							const comment = document.getElementById('comment').value.trim();
+							if (comment === '') {
+								hasRatingWithoutComment = true;
+							}
+						}
+					});
+
+					// If there is a star rating without a comment, display the rating bars
+					if (hasRatingWithoutComment) {
+						document.querySelector('.star-ratings-container').style.display = 'block';
+					}
+				}
 			</script>
 			<hr>
 			<h3>Existing Reviews:</h3>
@@ -341,7 +364,67 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
 		integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
 		crossorigin="anonymous"></script>
+	<!-- JavaScript code to show or hide the rating bars based on ratings presence -->
 	<script>
+		function showRatingBars() {
+			const ratingBarsContainer = document.querySelector('.star-ratings-container');
+			const ratingBars = ratingBarsContainer.querySelectorAll('.star-fill');
+
+			let totalRatings = 0;
+			let totalRatingValue = 0;
+
+			ratingBars.forEach((bar, index) => {
+				// Get the rating value from the index (index + 1)
+				const ratingValue = index + 1;
+
+				const widthPercentage = bar.style.width;
+				const rating = parseFloat(widthPercentage.substring(0, widthPercentage.length - 1));
+				if (!isNaN(rating) && rating > 0) {
+					totalRatingValue += ratingValue;
+					totalRatings++;
+				}
+			});
+
+			if (totalRatings === 0) {
+				// Hide the rating bars if there are no ratings
+				ratingBarsContainer.style.display = 'none';
+			} else {
+				// Show the rating bars if there are ratings
+				ratingBarsContainer.style.display = 'block';
+
+				// Calculate the average rating
+				const averageRating = totalRatingValue / totalRatings;
+				const averageValueElement = document.querySelector('.average-value');
+				averageValueElement.textContent = averageRating.toFixed(1); // Display the average rating with one decimal point
+			}
+		}
+
+		window.onload = function () {
+			showRatingBars();
+		};
+
+		// Call the function after submitting a new rating and review to update the rating bars
+		function updateRatingBars() {
+			showRatingBars(); // Recalculate the average rating based on updated values
+			const starInputs = document.querySelectorAll('input[name="rating"]');
+			let hasRatingWithoutComment = false;
+
+			// Check if any star rating is selected without a comment
+			starInputs.forEach(input => {
+				if (input.checked) {
+					const comment = document.getElementById('comment').value.trim();
+					if (comment === '') {
+						hasRatingWithoutComment = true;
+					}
+				}
+			});
+
+			// If there is a star rating without a comment, display the rating bars
+			if (hasRatingWithoutComment) {
+				document.querySelector('.star-ratings-container').style.display = 'block';
+			}
+		}
+
 		function showMoreReviews() {
 			const hiddenReviews = document.querySelectorAll('.hidden-reviews');
 			const showMoreButton = document.getElementById('showMoreButton');

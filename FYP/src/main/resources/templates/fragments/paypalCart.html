@@ -13,15 +13,18 @@
 	<div id="paypal-button-container2"></div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/bootstrap/js/currencyConverter.js"></script>
 <script
-	src="https://www.paypal.com/sdk/js?client-id=AWUBqgGChrfsk4-x6P7rg6sQY77GT8sW1PuCvgfk8c26ImRIk0NZnYuFuDJN--Ps5hpJEMcq9YTUGUJ0&currency=USD"></script>
+	src="https://www.paypal.com/sdk/js?client-id=AWUBqgGChrfsk4-x6P7rg6sQY77GT8sW1PuCvgfk8c26ImRIk0NZnYuFuDJN--Ps5hpJEMcq9YTUGUJ0&currency=SGD"></script>
 <script>
 	paypal.Buttons({
 		createOrder: function (data, actions) {
+			const selectedCurrency = getCurrencyFromUrl();
 			return actions.order.create({
 				purchase_units: [{
 					amount: {
-						currency_code: 'USD',
+						currency_code: selectedCurrency,
 						value: parseFloat(document.getElementById('formCartTotal').value)
 					}
 				}]

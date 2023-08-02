@@ -14,6 +14,7 @@ package FYP;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -40,16 +41,17 @@ public class OrderItem {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "item_id")
 	private Item item;
+
 	private int quantity;
 	private String orderId;
 	private String transactionId;
 
 	@Column(name = "timestamp")
 	private Date timestamp;
-	
+
 	@PrePersist
 	public void prePersist() {
 		timestamp = new Date();

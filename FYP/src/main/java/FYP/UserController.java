@@ -43,6 +43,9 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	private CartItemRepository cartItemRepository;
+
 	@GetMapping("/user")
 	public String viewUsers(Model model) {
 
@@ -103,7 +106,16 @@ public class UserController {
 	public String deleteUser(@PathVariable("id") Long id, Authentication authentication) {
 		User user = userRepository.findById(id).orElse(null);
 		if (user != null) {
-			String deletedBy = authentication.getName(); // Get the username of the logged-in admin
+			List<CartItem> cartItems = cartItemRepository.findByUser(user);
+			for (CartItem cartItem : cartItems) {
+				cartItemRepository.delete(cartItem);
+			}
+
+			for (Item item : user.getItems()) {
+				itemRepository.delete(item);
+			}
+
+			String deletedBy = authentication.getName();
 			user.setDeletedBy(deletedBy);
 			user.setDeletedAt(new Date());
 			userRepository.save(user);

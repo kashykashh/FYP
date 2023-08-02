@@ -15,6 +15,7 @@ package FYP;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -42,8 +43,12 @@ public class User {
 	private boolean banned;
 	private double totalRevenue;
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Item> items;
+
+	public List<Item> getItems() {
+		return items;
+	}
 
 	public Long getId() {
 		return id;

@@ -64,6 +64,15 @@ public class ItemController {
 	@Autowired
 	private CategoryRepository categoryRepository;
 
+	@Autowired
+	private TopSellingItemRepository topSellingItemRepository;
+
+	@Autowired
+	private OrderItemRepository orderItemRepository;
+	
+	@Autowired
+	private CartItemRepository cartItemRepository;
+
 	private final int MAX_MODERATION_REJECTS = 3; // Maximum allowed image moderation rejects
 
 	@GetMapping("/items/updatePrices")
@@ -270,10 +279,30 @@ public class ItemController {
 
 	@GetMapping("/items/delete/{id}")
 	public String deleteItem(@PathVariable("id") Long id) {
+	    Item item = itemRepository.findById(id).orElse(null);
 
-		itemRepository.deleteById(id);
+	    if (item != null) {
+	        TopSellingItem topSellingItem = topSellingItemRepository.findByItem(item);
 
-		return "redirect:/items";
+	        if (topSellingItem != null) {
+	            topSellingItem.setItem(null);
+	            topSellingItemRepository.save(topSellingItem);
+	        }
+
+	        List<OrderItem> orderItems = orderItemRepository.findByItem(item);
+	        
+	        List<CartItem> cartItems = cartItemRepository.findByItem(item);
+	        cartItemRepository.deleteAll(cartItems);
+
+	        for (OrderItem orderItem : orderItems) {
+	            orderItem.setUser(null);
+	            orderItemRepository.save(orderItem);
+	        }
+
+	        itemRepository.deleteById(id);
+	    }
+
+	    return "redirect:/items";
 	}
 
 	public Long getLoggedInUserId() {

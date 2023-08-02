@@ -17,18 +17,23 @@
 				<div class="row fs-1 text-center">
 					<p>SHOPPING CART</p>
 				</div>
+				<div class="mb-3" style="text-align: center;">
+					<a th:href="@{/admin/top-selling-items-sellerList}" class="btn btn-primary">Go back to
+						Seller
+						List</a>
+				</div>
 				<div class="row mb-5">
-					<!-- shopping cart -->
+					<!-- Shopping cart -->
 					<div class="col-8">
 						<div class="container">
-							<!-- shopping cart items header -->
+							<!-- Shopping cart items header -->
 							<div class="row m-3 border-top border-bottom fs-5">
 								<div class="col">ITEMS</div>
 								<div class="col">PRICE</div>
 								<div class="col">QUANTITY</div>
 								<div class="col">SUBTOTAL</div>
 							</div>
-							<!-- shopping cart rows -->
+							<!-- Shopping cart rows -->
 							<div class="row m-3 border-bottom" th:each="cartItem : ${cartItemList}">
 								<!-- Item name, description, image -->
 								<div class="col mb-3">
@@ -43,11 +48,13 @@
 									<!-- Update item quantity form -->
 									<form th:action="@{/cart/update/{id}(id=${cartItem.id})}" method="post">
 										<input type="number" name="qty" th:value="${cartItem.quantity}"
-											th:id="${cartItem.id}" /> <br />
-										<button class="btn btn-primary">Update</button>
+											th:id="${cartItem.id}">
+										<button class="btn btn-primary mt-2">Update</button>
 									</form>
 									<!-- Remove item link -->
-									<a class="btn btn-link" th:href="@{/cart/remove/{id}(id=${cartItem.id})}">Remove</a>
+									<form th:action="@{/cart/remove/{id}(id=${cartItem.id})}" method="get">
+										<button class="btn btn-danger mt-2">Remove</button>
+									</form>
 								</div>
 								<div class="col align-self-center"
 									th:text="'$' + ${#numbers.formatDecimal(cartItem.item.price * cartItem.quantity, 1, 2)}">
@@ -67,7 +74,7 @@
 									<p th:text="${cartItem.item.name}+' x ' +${cartItem.quantity}"></p>
 								</div>
 								<div class="col fs-6 text-end">
-									<p th:text="'$'+${cartItem.subtotal}"></p>
+									<p th:text="'$'+${#numbers.formatDecimal(cartItem.subtotal, 1, 2)}"></p>
 								</div>
 							</div>
 							<div class="row m-3 border-bottom fw-bold">

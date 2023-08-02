@@ -30,5 +30,4 @@ public interface TopSellingItemRepository extends JpaRepository<TopSellingItem, 
 	TopSellingItem findByItem(Item item);
 
 	List<TopSellingItem> findBySellerOrderByQuantitySoldDesc(User seller);
-
 }

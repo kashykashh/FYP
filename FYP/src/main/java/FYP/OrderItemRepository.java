@@ -26,5 +26,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
 	OrderItem findByTimestampNotNull();
 	
 	List<OrderItem> findByUserId(Long loggedInUserId);
-
+	
+	List<OrderItem> findByItem(Item item);
 }

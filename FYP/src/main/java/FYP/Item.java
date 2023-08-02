@@ -16,6 +16,7 @@ package FYP;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -24,6 +25,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 
 /**
@@ -44,6 +46,9 @@ public class Item {
 	private boolean advertise;
 	private Integer duration;
 	private double basePrice;
+
+	@OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<OrderItem> orderItems = new ArrayList<>();
 
 	@Column(name = "previous_quantity", nullable = false, columnDefinition = "INT DEFAULT 0")
 	private Integer previousQuantity;
