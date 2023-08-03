@@ -78,9 +78,10 @@
 			</thead>
 			<tbody>
 				<tr th:each="topSellingItem : ${topSellingItems}">
-					<td th:text="${topSellingItem.item.name}"></td>
+					<td th:text="${topSellingItem.item?.name}">
 					<td th:text="${topSellingItem.quantitySold}"></td>
-					<td class="seller-revenue" th:text="${topSellingItem.item.price * topSellingItem.quantitySold}">
+					<td class="seller-revenue"
+						th:text="${topSellingItem.item != null && topSellingItem.quantitySold != null ? topSellingItem.item.price * topSellingItem.quantitySold : 0}">
 					</td>
 				</tr>
 			</tbody>

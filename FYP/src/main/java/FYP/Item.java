@@ -47,6 +47,9 @@ public class Item {
 	private Integer duration;
 	private double basePrice;
 
+	@OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<TopSellingItem> topSellingItems = new ArrayList<>();
+
 	@OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> orderItems = new ArrayList<>();
 

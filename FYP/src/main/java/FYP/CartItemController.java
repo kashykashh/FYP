@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * @author 21033239
@@ -75,10 +76,19 @@ public class CartItemController {
 
 	@PostMapping("/cart/add/{itemId}")
 	public String addToCart(@PathVariable("itemId") Long itemId, @RequestParam("quantity") int quantity,
-			Principal principal) {
+			Principal principal, RedirectAttributes redirectAttributes) {
 		UserDetail loggedInUser = (UserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User user = loggedInUser.getUser();
 		Long loggedInUserId = user.getId();
+
+		Item item = itemRepo.getById(itemId);
+		int availableQuantity = item.getQuantity();
+
+		if (quantity > availableQuantity) {
+			redirectAttributes.addFlashAttribute("quantityError",
+					"Quantity exceeds the available stock. Please enter a lower quantity.");
+			return "redirect:/items/" + itemId;
+		}
 
 		CartItem cartItem = cartItemRepo.findByUserAndItemId(user, itemId);
 
@@ -88,8 +98,6 @@ public class CartItemController {
 			cartItem.setQuantity(totalQuantity);
 			cartItemRepo.save(cartItem);
 		} else {
-			Item item = itemRepo.getById(itemId);
-
 			cartItem = new CartItem();
 			cartItem.setItem(item);
 			cartItem.setUser(user);

@@ -48,7 +48,12 @@ public class TopSellingItemController {
 		String username = principal.getName();
 		User seller = userRepository.findByUsername(username);
 		List<TopSellingItem> topSellingItems = topSellingItemRepository.findBySeller(seller);
-		model.addAttribute("topSellingItems", topSellingItems);
+
+		List<TopSellingItem> filteredTopSellingItems = topSellingItems.stream()
+				.filter(item -> item.getItem() != null && item.getItem().getName() != null)
+				.collect(Collectors.toList());
+
+		model.addAttribute("topSellingItems", filteredTopSellingItems);
 		return "seller_top-selling-items";
 	}
 
@@ -58,7 +63,7 @@ public class TopSellingItemController {
 				.peek(seller -> {
 					// Calculate total revenue for each seller
 					List<TopSellingItem> topSellingItems = topSellingItemRepository.findBySeller(seller);
-					double totalRevenue = topSellingItems.stream().mapToDouble(
+					double totalRevenue = topSellingItems.stream().filter(item -> item.getItem() != null).mapToDouble(
 							topSellingItem -> topSellingItem.getQuantitySold() * topSellingItem.getItem().getPrice())
 							.sum();
 					seller.setTotalRevenue(totalRevenue);
@@ -93,7 +98,13 @@ public class TopSellingItemController {
 			return "error";
 		}
 		List<TopSellingItem> topSellingItems = topSellingItemRepository.findBySellerOrderByQuantitySoldDesc(seller);
-		model.addAttribute("topSellingItems", topSellingItems);
+
+		// Filter the topSellingItems list to exclude items with null name
+		List<TopSellingItem> filteredTopSellingItems = topSellingItems.stream()
+				.filter(item -> item.getItem() != null && item.getItem().getName() != null)
+				.collect(Collectors.toList());
+
+		model.addAttribute("topSellingItems", filteredTopSellingItems);
 		return "admin_top-selling-items";
 	}
 

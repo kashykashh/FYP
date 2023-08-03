@@ -69,7 +69,7 @@ public class ItemController {
 
 	@Autowired
 	private OrderItemRepository orderItemRepository;
-	
+
 	@Autowired
 	private CartItemRepository cartItemRepository;
 
@@ -205,14 +205,19 @@ public class ItemController {
 	@PostMapping("/items/edit/{id}")
 	public String saveUpdatedItem(@PathVariable("id") Long id, @ModelAttribute Item updatedItem,
 			@RequestParam(value = "itemImage", required = false) MultipartFile imgFile, Model model) {
-		Item existingItem = itemRepository.getById(id); // Retrieve the existing item
+		// Fetch the existing item from the database
+		Item existingItem = itemRepository.getById(id);
+
+		// Manually copy the fields to update from updatedItem to existingItem
+		existingItem.setName(updatedItem.getName());
+		existingItem.setDescription(updatedItem.getDescription());
+		existingItem.setPrice(updatedItem.getPrice());
+		existingItem.setQuantity(updatedItem.getQuantity());
 
 		// Set the imgName to the existing image name if no new image is uploaded
 		if (imgFile != null && !imgFile.isEmpty()) {
 			String imageName = imgFile.getOriginalFilename();
-			updatedItem.setImgName(imageName);
-		} else {
-			updatedItem.setImgName(existingItem.getImgName());
+			existingItem.setImgName(imageName);
 		}
 
 		User loggedInUser = userRepository.getById(getLoggedInUserId());
@@ -220,13 +225,13 @@ public class ItemController {
 		if (loggedInUser != null) {
 			// Check if the user is not an admin
 			if (!loggedInUser.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
-				updatedItem.setUser(loggedInUser);
+				existingItem.setUser(loggedInUser);
 			} else {
 				// Set the original user if the user is an admin
-				updatedItem.setUser(existingItem.getUser());
+				existingItem.setUser(existingItem.getUser());
 			}
 
-			updatedItem.setId(id); // Set the ID of the updated item
+			existingItem.setId(id); // Set the ID of the updated item
 
 			try {
 				// Perform image moderation only if a new image is uploaded
@@ -251,8 +256,8 @@ public class ItemController {
 					}
 				}
 
-				// Update the existing item with the updated fields
-				Item savedItem = itemRepository.save(updatedItem);
+				// Save the updated item
+				Item savedItem = itemRepository.save(existingItem);
 
 				if (imgFile != null && !imgFile.isEmpty()) {
 					String uploadDir = "uploads/items/" + savedItem.getId();
@@ -279,30 +284,29 @@ public class ItemController {
 
 	@GetMapping("/items/delete/{id}")
 	public String deleteItem(@PathVariable("id") Long id) {
-	    Item item = itemRepository.findById(id).orElse(null);
+		Item item = itemRepository.findById(id).orElse(null);
 
-	    if (item != null) {
-	        TopSellingItem topSellingItem = topSellingItemRepository.findByItem(item);
+		if (item != null) {
+			// Remove the association between TopSellingItem and Item
+			TopSellingItem topSellingItem = topSellingItemRepository.findByItem(item);
+			if (topSellingItem != null) {
+				topSellingItemRepository.delete(topSellingItem);
+			}
 
-	        if (topSellingItem != null) {
-	            topSellingItem.setItem(null);
-	            topSellingItemRepository.save(topSellingItem);
-	        }
+			List<OrderItem> orderItems = orderItemRepository.findByItem(item);
 
-	        List<OrderItem> orderItems = orderItemRepository.findByItem(item);
-	        
-	        List<CartItem> cartItems = cartItemRepository.findByItem(item);
-	        cartItemRepository.deleteAll(cartItems);
+			List<CartItem> cartItems = cartItemRepository.findByItem(item);
+			cartItemRepository.deleteAll(cartItems);
 
-	        for (OrderItem orderItem : orderItems) {
-	            orderItem.setUser(null);
-	            orderItemRepository.save(orderItem);
-	        }
+			for (OrderItem orderItem : orderItems) {
+				orderItem.setUser(null);
+				orderItemRepository.save(orderItem);
+			}
 
-	        itemRepository.deleteById(id);
-	    }
+			itemRepository.deleteById(id);
+		}
 
-	    return "redirect:/items";
+		return "redirect:/items";
 	}
 
 	public Long getLoggedInUserId() {

@@ -51,7 +51,8 @@
 				</thead>
 				<tbody>
 					<tr th:each="topSellingItem : ${topSellingItems}">
-						<td th:text="${topSellingItem.item.name}"></td>
+						<td th:if="${topSellingItem.item != null}" th:text="${topSellingItem.item.name}"></td>
+						<td th:unless="${topSellingItem.item != null}">N/A</td>
 						<td th:text="${topSellingItem.quantitySold}"></td>
 					</tr>
 				</tbody>

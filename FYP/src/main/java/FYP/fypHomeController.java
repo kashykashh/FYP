@@ -13,6 +13,7 @@
 package FYP;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,11 +39,11 @@ public class fypHomeController {
 	public String home(Model model) {
 		List<Item> listItems = itemRepository.findAll();
 		List<Category> listCategories = categoryRepository.findAll();
-		model.addAttribute("listItems", listItems);
+		model.addAttribute("listItems", filterItemsWithZeroQuantity(listItems));
 		model.addAttribute("listCategories", listCategories);
 
 		List<Item> advertisedItems = itemRepository.findByAdvertiseTrue();
-		model.addAttribute("advertisedItems", advertisedItems);
+		model.addAttribute("advertisedItems", filterItemsWithZeroQuantity(advertisedItems));
 
 		return "index";
 	}
@@ -69,5 +70,9 @@ public class fypHomeController {
 	public String termsOfService() {
 
 		return "terms_of_service";
+	}
+
+	private List<Item> filterItemsWithZeroQuantity(List<Item> itemList) {
+		return itemList.stream().filter(item -> item.getQuantity() > 0).collect(Collectors.toList());
 	}
 }

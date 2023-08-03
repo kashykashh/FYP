@@ -36,7 +36,7 @@ public class TopSellingItem {
 	@JoinColumn(name = "user_id")
 	private User seller;
 
-	@ManyToOne(cascade = CascadeType.REMOVE)
+	@ManyToOne
 	@JoinColumn(name = "item_id", nullable = true)
 	private Item item;
 
