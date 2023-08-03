@@ -65,16 +65,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http.authorizeRequests()
 				.antMatchers("/forgot-password/**", "/password-reset-requested/**", "/password-reset-success/**",
-						"/reset-password/**", "/cart/process_order/**")
-				.permitAll()
+						"/reset-password/**", "/cart/process_order/**").permitAll()
 				.antMatchers("/categories/add", "/categories/edit/*", "/categories/save", "/categories/delete/*",
-						"/user/**")
-				.hasRole("ADMIN").antMatchers("/items/add", "/items/edit/{id}", "/items/save", "/items/delete/{id}")
-				.hasAnyRole("ADMIN", "SELLER").antMatchers("/items/{id}", "/categories/{id}", "/about", "/help_center", "/contact_us", "/faq", "/terms_of_service").permitAll()
-				.antMatchers("/sellerInventory/**").hasRole("SELLER").antMatchers("/adminInventory/**").hasRole("ADMIN")
-				.antMatchers("/", "/register/**", "/login").permitAll().antMatchers(staticResources).permitAll()
-				.anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()
-				.defaultSuccessUrl("/", true).and().logout().logoutUrl("/logout").permitAll().and().exceptionHandling()
+						"/user/**").hasRole("ADMIN")
+				.antMatchers("/items/add", "/items/edit/{id}", "/items/save", "/items/delete/{id}").hasAnyRole("ADMIN", "SELLER")
+				.antMatchers("/items/{id}", "/categories/{id}", "/about", "/help_center", "/contact_us", "/faq",
+						"/terms_of_service", "/contact_us_thank_you").permitAll()
+				.antMatchers( "/send-email").permitAll()
+				.antMatchers("/sellerInventory/**").hasRole("SELLER")
+				.antMatchers("/adminInventory/**").hasRole("ADMIN")
+				.antMatchers("/", "/register/**", "/login").permitAll()
+				.antMatchers(staticResources)
+				.permitAll().anyRequest().authenticated()
+				.and()
+				.formLogin().loginPage("/login").permitAll()
+				.defaultSuccessUrl("/", true)
+				.and()
+				.logout().logoutUrl("/logout").permitAll()
+				.and().exceptionHandling()
 				.accessDeniedPage("/403");
 	}
 }

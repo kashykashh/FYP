@@ -59,12 +59,6 @@ public class fypHomeController {
 		return "help_center";
 	}
 
-	@GetMapping("/contact_us")
-	public String contactUs() {
-
-		return "contact_us";
-	}
-
 	@GetMapping("/faq")
 	public String faq() {
 

@@ -12,7 +12,6 @@
  */
 package FYP;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -37,8 +36,6 @@ public class User {
 	private String email;
 	private String role;
 	private String resetToken;
-	private String deletedBy;
-	private Date deletedAt;
 	private int moderationFailures;
 	private boolean banned;
 	private double totalRevenue;
@@ -104,22 +101,6 @@ public class User {
 
 	public void setResetToken(String resetToken) {
 		this.resetToken = resetToken;
-	}
-
-	public String getDeletedBy() {
-		return deletedBy;
-	}
-
-	public void setDeletedBy(String deletedBy) {
-		this.deletedBy = deletedBy;
-	}
-
-	public Date getDeletedAt() {
-		return deletedAt;
-	}
-
-	public void setDeletedAt(Date deletedAt) {
-		this.deletedAt = deletedAt;
 	}
 
 	public int getModerationFailures() {

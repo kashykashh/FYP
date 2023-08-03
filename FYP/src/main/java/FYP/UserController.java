@@ -12,12 +12,10 @@
  */
 package FYP;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -106,19 +104,20 @@ public class UserController {
 	public String deleteUser(@PathVariable("id") Long id, Authentication authentication) {
 		User user = userRepository.findById(id).orElse(null);
 		if (user != null) {
+
 			List<CartItem> cartItems = cartItemRepository.findByUser(user);
 			for (CartItem cartItem : cartItems) {
 				cartItemRepository.delete(cartItem);
 			}
 
-			for (Item item : user.getItems()) {
+			List<Item> items = user.getItems();
+			for (Item item : items) {
 				itemRepository.delete(item);
 			}
 
-			String deletedBy = authentication.getName();
-			user.setDeletedBy(deletedBy);
-			user.setDeletedAt(new Date());
 			userRepository.save(user);
+
+			userRepository.delete(user);
 		}
 		return "redirect:/user";
 	}

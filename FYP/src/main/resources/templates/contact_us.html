@@ -8,18 +8,114 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
 		integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f8f8f8;
+		}
+
+		h1 {
+			color: #333;
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		ul {
+			list-style: none;
+			padding-left: 0;
+		}
+
+		li {
+			margin-bottom: 10px;
+		}
+
+		label {
+			font-weight: bold;
+		}
+
+		input[type="text"],
+		input[type="email"],
+		textarea {
+			width: 100%;
+			padding: 10px;
+			margin-bottom: 10px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		}
+
+		textarea {
+			resize: vertical;
+		}
+
+		button {
+			padding: 10px 20px;
+			background-color: #007bff;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			width: 100%;
+		}
+
+		button:hover {
+			background-color: #0056b3;
+		}
+
+		.contact-info {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+
+		.contact-info i {
+			font-size: 20px;
+			margin-right: 10px;
+		}
+	</style>
+
 </head>
 
 <body>
 	<div th:replace="fragments/navbarHeader"></div>
-	<div class="container">
+	<div class="container mb-4">
 		<h1>Contact Us</h1>
-		<p>Have a question or need support? Reach out to us through one of the following channels:</p>
 		<ul>
-			<li>Email: support@worldbay.com</li>
-			<li>Phone: +65 9876 5432</li>
-			<li>Fax: +65 8765 4321</li>
+			<li><b>Have a question or need support? Reach out to us through one of the following channels:</b></li>
+			<li><b>Email:</b> worldbaywebsite@gmail.com</li>
+			<li><b>Phone:</b> +65 9876 5432</li>
+			<li><b>Fax:</b> +65 8765 4321</li>
+			<li><b style="color: limegreen;">Alternatively, you can send an email below:</b></li>
 		</ul>
+
+
+		<!-- Contact Form for ROLE_USER -->
+		<form th:action="@{/send-email}" method="post" th:if="${user == null}">
+			<input type="hidden" name="role" th:value="${user != null ? user.role : ''}">
+			<label>Name:</label>
+			<input type="text" name="name" required>
+			<label>Email:</label>
+			<input type="email" name="email" required>
+			<label>Message:</label>
+			<textarea name="message" rows="5" cols="40" required></textarea>
+			<input type="hidden" name="username" value="">
+			<input type="hidden" name="banStatus" value="">
+			<button type="submit">Submit</button>
+		</form>
+
+		<!-- Contact Form for roles other than ROLE_USER -->
+		<form th:action="@{/send-email}" method="post" th:if="${user != null && user.role != 'ROLE_USER'}">
+			<input type="hidden" name="role" th:value="${user != null ? user.role : ''}">
+			<input type="hidden" name="name" th:value="${user != null ? user.name : ''}" required>
+			<input type="hidden" name="username" th:value="${user != null ? user.username : ''}" required>
+			<input type="hidden" name="email" th:value="${user != null ? user.email : ''}" required>
+			<input type="hidden" name="banStatus" th:value="${user != null ? user.banned : ''}" required>
+			<label>Message:</label>
+			<textarea name="message" rows="5" cols="40" required></textarea>
+			<button type="submit">Submit</button>
+		</form>
+
 	</div>
 	<div th:replace="fragments/footer"></div>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
