@@ -43,7 +43,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:each="user : ${listUsers}" th:unless="${user.deletedBy}">
+					<tr th:each="user : ${listUsers}">
 						<td><a th:href="@{/user/{id}/transactions(id=${user.id})}"><span
 									th:text="${user.name}"></span></a>
 						</td>
