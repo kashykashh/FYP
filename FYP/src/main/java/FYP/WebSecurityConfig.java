@@ -22,6 +22,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 /**
  * @author 21033239
@@ -39,6 +41,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public UserDetailService userDetailsService() {
 		return new UserDetailService();
 	}
+	
+	@Bean
+    public LogoutHandler logoutHandler() {
+        return new SecurityContextLogoutHandler();
+    }
 
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider() {

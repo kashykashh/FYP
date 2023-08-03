@@ -23,6 +23,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -35,6 +37,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
@@ -72,6 +75,9 @@ public class ItemController {
 
 	@Autowired
 	private CartItemRepository cartItemRepository;
+
+	@Autowired
+	private LogoutHandler logoutHandler;
 
 	private final int MAX_MODERATION_REJECTS = 3; // Maximum allowed image moderation rejects
 
@@ -168,6 +174,12 @@ public class ItemController {
 				List<Category> catList = categoryRepository.findAll();
 				model.addAttribute("catList", catList);
 
+				// If the user is banned, log them out and redirect to the login page
+				if (loggedInUser.isBanned()) {
+					userRepository.save(loggedInUser);
+					return "redirect:/login?logout";
+				}
+
 				return "add_item";
 			}
 		} catch (IOException e) {
@@ -252,6 +264,13 @@ public class ItemController {
 						Integer selectedDuration = existingItem.isAdvertise() ? existingItem.getDuration() : null;
 						model.addAttribute("selectedDuration", selectedDuration);
 						model.addAttribute("item", existingItem);
+
+						// If the user is banned, log them out and redirect to the login page
+						if (loggedInUser.isBanned()) {
+							userRepository.save(loggedInUser);
+							return "redirect:/login?logout";
+						}
+
 						return "edit_item";
 					}
 				}
@@ -370,17 +389,19 @@ public class ItemController {
 						if (summary.has("action")) {
 							String moderationResult = summary.getString("action");
 
+							// Update the user's moderation failures count
 							if (moderationResult.equals("reject")) {
-								// Increment the user's moderation failures count
 								int failures = user.getModerationFailures();
 								user.setModerationFailures(failures + 1);
 								userRepository.save(user);
+							}
 
-								// Check if the user should be banned
-								if (user.getModerationFailures() >= MAX_MODERATION_REJECTS) {
-									user.setBanned(true);
-									userRepository.save(user);
-								}
+							// Check if the user should be banned
+							if (user.getModerationFailures() >= MAX_MODERATION_REJECTS) {
+								user.setBanned(true);
+								user.setModerationFailures(0);
+								userRepository.save(user);
+								return "reject";
 							}
 
 							return moderationResult;
