@@ -80,11 +80,12 @@
 		if (!paypalButtons) {
 			paypalButtons = paypal.Buttons({
 				createOrder: function (data, actions) {
+					const selectedCurrency = getCurrencyFromUrl();
 					return actions.order.create({
 						purchase_units: [
 							{
 								amount: {
-									currency_code: "USD",
+									currency_code: selectedCurrency,
 									value: parseFloat(orderAmount),
 								},
 							},
