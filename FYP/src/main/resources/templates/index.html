@@ -203,6 +203,14 @@
 			</div>
 		</th:block>
 	</div>
+
+	<!-- Pagination navigation buttons -->
+	<div class="d-flex justify-content-center mt-3">
+		<nav aria-label="Item Pagination">
+			<ul class="pagination" id="paginationContainer"></ul>
+		</nav>
+	</div>
+
 	<div th:replace="fragments/footer"></div>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="/bootstrap/js/currencyConverter.js"></script>
@@ -212,33 +220,78 @@
 
 	<script>
 		$(document).ready(function () {
-			// Reference to the search input and item cards
+			// Reference to the search input, item container, and item cards
 			const searchInput = $('#searchInput');
+			const itemContainer = $('#itemContainer');
 			const itemCards = $('.card');
+			const itemsPerPage = 35; // Number of items to display per page
+			let currentPage = 1; // Current page number
 
-			// Function to filter items based on the search input
-			function filterItems() {
+			// Function to filter and paginate items based on the search input and current page
+			function filterAndPaginateItems() {
 				const searchTerm = searchInput.val().trim().toLowerCase();
 
-				if (searchTerm === '') {
-					// If the search input is empty, show all item cards
-					itemCards.show();
-				} else {
-					// If the search input has text, filter the item cards
-					itemCards.each(function () {
-						const itemName = $(this).find('.card-title').text().trim().toLowerCase();
-						if (itemName.includes(searchTerm)) {
-							$(this).show();
-						} else {
-							$(this).hide();
-						}
-					});
-				}
+				// Filter the item cards based on the search input
+				itemCards.each(function () {
+					const itemName = $(this).find('.card-title').text().trim().toLowerCase();
+					if (searchTerm === '' || itemName.includes(searchTerm)) {
+						$(this).show();
+					} else {
+						$(this).hide();
+					}
+				});
+
+				// Paginate the items
+				const itemsToShow = itemCards.filter(':visible');
+				const numPages = Math.ceil(itemsToShow.length / itemsPerPage);
+				currentPage = Math.min(currentPage, numPages); // Ensure current page is within the valid range
+
+				// Display only the items for the current page
+				const startIndex = (currentPage - 1) * itemsPerPage;
+				const endIndex = startIndex + itemsPerPage;
+				itemsToShow.hide().slice(startIndex, endIndex).show();
+
+				// Update pagination buttons
+				updatePaginationButtons(numPages);
 			}
 
-			// Attach event listeners to the search input
-			searchInput.on('input', filterItems);
-			$('#searchButton').on('click', filterItems);
+			// Function to update the pagination buttons based on the number of pages
+			function updatePaginationButtons(numPages) {
+				const paginationContainer = $('#paginationContainer');
+				paginationContainer.empty();
+
+				if (numPages <= 1) {
+					// If there's only one page, no need for pagination buttons
+					return;
+				}
+
+				// Create and add pagination buttons
+				for (let i = 1; i <= numPages; i++) {
+					const li = $('<li class="page-item"></li>');
+					const link = $(`<a class="page-link" href="#">${i}</a>`);
+
+					if (i === currentPage) {
+						li.addClass('active');
+					}
+
+					li.append(link);
+					paginationContainer.append(li);
+				}
+
+				// Attach click event listeners to pagination buttons
+				paginationContainer.find('a.page-link').on('click', function (event) {
+					event.preventDefault();
+					currentPage = parseInt($(this).text());
+					filterAndPaginateItems();
+				});
+			}
+
+			// Attach event listeners to the search input and search button
+			searchInput.on('input', filterAndPaginateItems);
+			$('#searchButton').on('click', filterAndPaginateItems);
+
+			// Call the function to initially display and paginate the items
+			filterAndPaginateItems();
 		});
 	</script>
 </body>
