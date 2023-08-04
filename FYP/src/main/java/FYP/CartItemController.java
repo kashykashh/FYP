@@ -14,11 +14,16 @@ package FYP;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -202,6 +207,89 @@ public class CartItemController {
 		return "/success";
 	}
 
+	@PostMapping("/cart/payWithWallet")
+	public String payWithWallet(HttpServletRequest request, Model model, @RequestParam("cartTotal") double cartTotal,
+			@RequestParam("orderId") String orderId, @RequestParam("transactionId") String transactionId) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.isAuthenticated()) {
+			Long loggedInUserId = getLoggedInUserId();
+			if (loggedInUserId != null) {
+				Optional<User> optionalUser = userRepo.findById(loggedInUserId);
+				if (optionalUser.isPresent()) {
+					// Retrieve cart items purchased
+					List<CartItem> cartItemList = cartItemRepo.findByUserId(loggedInUserId);
+
+					User currentUser = userRepo.getById(loggedInUserId);
+					Wallet wallet = currentUser.getWallet();
+
+					if (cartTotal <= wallet.getBalance()) {
+						// Deduct the price of the items from the user's wallet balance.
+						double beforePurchaseTotalSpent = wallet.getTotalSpent() + cartTotal;
+						double currentBalance = wallet.getBalance();
+						wallet.setBalance(currentBalance - cartTotal);
+						wallet.setLastSpendage(cartTotal);
+						wallet.setTotalSpent(beforePurchaseTotalSpent);
+
+						for (int i = 0; i < cartItemList.size(); i++) {
+							// Retrieve details about current cart item
+							CartItem currentCartItem = cartItemList.get(i);
+
+							Item currentItem = currentCartItem.getItem();
+
+							// Update item table
+							int qtyInventory = currentItem.getQuantity();
+							int qtyInCart = currentCartItem.getQuantity();
+							int qtyToUpdate = qtyInventory - qtyInCart;
+							currentItem.setQuantity(qtyToUpdate);
+							itemRepo.save(currentItem);
+
+							// Update top selling item
+							TopSellingItem topSellingItem = topSellingItemRepository.findByItem(currentItem);
+							if (topSellingItem == null) {
+								// Create a new top selling item
+								topSellingItem = new TopSellingItem();
+								topSellingItem.setItem(currentItem);
+								topSellingItem.setSeller(currentItem.getUser());
+								topSellingItem.setQuantitySold(qtyInCart);
+							} else {
+								// Increment the quantity sold of the existing top selling item
+								topSellingItem.setQuantitySold(topSellingItem.getQuantitySold() + qtyInCart);
+							}
+							topSellingItemRepository.save(topSellingItem);
+
+							// Add item to order table
+							OrderItem newOrderItem = new OrderItem();
+
+							newOrderItem.setItem(currentItem);
+							newOrderItem.setUser(currentUser);
+							newOrderItem.setQuantity(qtyInCart);
+							newOrderItem.setSubtotal(currentCartItem.getSubtotal());
+							newOrderItem.setOrderId(orderId);
+							newOrderItem.setTransactionId(transactionId);
+
+							orderItemRepo.save(newOrderItem);
+
+						}
+
+						// Send an email to the user confirming the order.
+						String subject = "WorldBay order is confirmed!";
+						String body = "Thank you for your order!\n" + "Order ID: " + orderId;
+						String to = currentUser.getEmail();
+						sendEmail(to, subject, body);
+
+						cartItemRepo.deleteAll(cartItemList);
+
+						// Notify the user that the payment was successful.
+						model.addAttribute("message", "Payment successful!");
+					} else {
+						model.addAttribute("message", "Insufficient balance");
+					}
+				}
+			}
+		}
+		return "successWallet";
+	}
+
 	public void sendEmail(String to, String subject, String body) {
 		SimpleMailMessage msg = new SimpleMailMessage();
 		msg.setTo(to);
@@ -219,5 +307,16 @@ public class CartItemController {
 			cartTotal += cartItem.getSubtotal();
 		}
 		return cartTotal;
+	}
+
+	public Long getLoggedInUserId() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null && authentication.isAuthenticated()) {
+			Object principal = authentication.getPrincipal();
+			if (principal instanceof UserDetails) {
+				return ((UserDetail) principal).getId();
+			}
+		}
+		return null;
 	}
 }

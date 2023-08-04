@@ -20,6 +20,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  * @author 21033239
@@ -40,8 +41,16 @@ public class User {
 	private boolean banned;
 	private double totalRevenue;
 
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Wallet wallet;
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Item> items;
+
+	public User() {
+		this.wallet = new Wallet();
+		this.wallet.setUser(this);
+	}
 
 	public List<Item> getItems() {
 		return items;
@@ -125,5 +134,13 @@ public class User {
 
 	public void setTotalRevenue(double totalRevenue) {
 		this.totalRevenue = totalRevenue;
+	}
+
+	public Wallet getWallet() {
+		return wallet;
+	}
+
+	public void setWallet(Wallet wallet) {
+		this.wallet = wallet;
 	}
 }

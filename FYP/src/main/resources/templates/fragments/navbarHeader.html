@@ -31,9 +31,7 @@
 
 		.dropdown-menu {
 			max-height: 300px;
-			/* Set the maximum height of the dropdown menu */
 			overflow-y: auto;
-			/* Add a scrollbar if content exceeds the max height */
 		}
 	</style>
 </head>
@@ -64,7 +62,6 @@
 							<!-- Currency options are here -->
 						</ul>
 					</li>
-
 
 					<li><a class="nav-link text-white" href="/">Home</a></li>
 					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
@@ -100,6 +97,21 @@
 						<a class="nav-link text-white" href="/admin">Admin&nbspPage</a>
 					</li>
 
+					<!-- Wallet -->
+					<li class="nav-item dropdown">
+						<a class="nav-link text-white dropdown-toggle" role="button" id="walletDropdown"
+							data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+							onclick="fetchWalletBalance()">
+							Wallet
+						</a>
+						<div class="dropdown-menu" aria-labelledby="walletDropdown">
+							<!-- Display wallet balance or "Log In to view balance" -->
+							<a class="dropdown-item" id="walletBalance">Log In to view balance</a>
+							<a class="dropdown-item" href="/wallet/view">View Wallet</a>
+							<a class="dropdown-item" href="/wallet/top-up/enterAmount">Top Up Wallet</a>
+						</div>
+					</li>
+
 					<!-- Cart icon with stacking -->
 					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'') or hasRole(''BUYER'')')}"
 						class="nav-item"><a href="/cart" class="fa-stack nav-link text-white"
@@ -123,12 +135,35 @@
 					<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
 							href="/login">Login</a></li>
 					<li sec:authorize="!isAuthenticated()" class="nav-item"><a class="nav-link text-white"
-							href="/register">Sign Up</a></li>
+							href="/register">Sign
+							Up</a></li>
 				</ul>
 			</div>
 		</nav>
 	</header>
 	<br>
+	<script>
+		function fetchWalletBalance() {
+			var xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === XMLHttpRequest.DONE) {
+					if (xhr.status === 200) {
+						var response = JSON.parse(xhr.responseText);
+						console.log(response);
+						if (response.walletBalance !== undefined) {
+							document.getElementById("walletBalance").innerText = "Wallet balance: $" + response.walletBalance.toFixed(2);
+						} else {
+							document.getElementById("walletBalance").innerText = response.message;
+						}
+					} else {
+						console.log(xhr.status);
+					}
+				}
+			};
+			xhr.open("GET", "/wallet/details", true);
+			xhr.send();
+		}
+	</script>
 </body>
 
 </html>

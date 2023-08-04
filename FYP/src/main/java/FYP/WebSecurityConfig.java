@@ -69,7 +69,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		String[] staticResources = { "/css/**", "/images/**", "/fonts/**", "/uploads/**", "/bootstrap/*/*" };
-
+		
+		http.csrf().ignoringAntMatchers("/wallet/top-up");
+		
 		http.authorizeRequests()
 				.antMatchers("/forgot-password/**", "/password-reset-requested/**", "/password-reset-success/**",
 						"/reset-password/**", "/cart/process_order/**").permitAll()
@@ -81,6 +83,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers( "/send-email").permitAll()
 				.antMatchers("/sellerInventory/**").hasRole("SELLER")
 				.antMatchers("/adminInventory/**").hasRole("ADMIN")
+				.antMatchers("/wallet/balance").permitAll()
+				.antMatchers("/wallet/view", "/wallet/top-up").hasAnyRole("ADMIN", "SELLER","BUYER")
 				.antMatchers("/", "/register/**", "/login").permitAll()
 				.antMatchers(staticResources)
 				.permitAll().anyRequest().authenticated()
