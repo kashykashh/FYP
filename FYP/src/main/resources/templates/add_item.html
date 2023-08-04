@@ -46,20 +46,6 @@
 					</select>
 				</div>
 
-				<div id="advertise-fee" class="mb-3 col-5" style="display: none;">
-					<label class="form-label">Advertising Fee:</label> <span id="advertise_fee"
-						class="form-text"></span>
-					<div class="row">
-						<div class="col-lg-20">
-							<div id="paypal-button-container"></div>
-						</div>
-						<div class="col-lg-20">
-							<div id="paymentSuccessMessage" class="alert alert-success mt-3" style="display: none;">
-							</div>
-						</div>
-					</div>
-				</div>
-
 				<div class="mb-3 col-5">
 					<label for="item_advertise" id="advertise-label" class="form-label">Advertise</label>
 					<div class="form-check">
@@ -106,6 +92,20 @@
 				<!-- Section to display the file size error message -->
 				<div th:if="${fileSizeError}" class="alert alert-danger" role="alert">
 					<strong>Error:</strong> <span th:text="${fileSizeError}"></span>
+				</div>
+
+				<div id="advertise-fee" class="mb-3 col-5" style="display: none;">
+					<label class="form-label">Advertising Fee:</label> <span id="advertise_fee"
+						class="form-text"></span>
+					<div class="row">
+						<div class="col-lg-20">
+							<div id="paypal-button-container"></div>
+						</div>
+						<div class="col-lg-20">
+							<div id="paymentSuccessMessage" class="alert alert-success mt-3" style="display: none;">
+							</div>
+						</div>
+					</div>
 				</div>
 
 				<!-- Add Item Button -->
