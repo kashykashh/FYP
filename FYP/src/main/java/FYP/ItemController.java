@@ -401,6 +401,13 @@ public class ItemController {
 								user.setBanned(true);
 								user.setModerationFailures(0);
 								userRepository.save(user);
+
+								// Set the quantity of all the banned user's items to 0
+								List<Item> userItems = user.getItems();
+								for (Item item : userItems) {
+									item.setQuantity(0);
+								}
+
 								return "reject";
 							}
 
