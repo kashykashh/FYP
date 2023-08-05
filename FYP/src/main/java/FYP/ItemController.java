@@ -76,8 +76,6 @@ public class ItemController {
 	@Autowired
 	private CartItemRepository cartItemRepository;
 
-	@Autowired
-	private LogoutHandler logoutHandler;
 
 	private final int MAX_MODERATION_REJECTS = 3; // Maximum allowed image moderation rejects
 
@@ -225,6 +223,7 @@ public class ItemController {
 		existingItem.setDescription(updatedItem.getDescription());
 		existingItem.setPrice(updatedItem.getPrice());
 		existingItem.setQuantity(updatedItem.getQuantity());
+		existingItem.setCategory(updatedItem.getCategory());
 
 		// Set the imgName to the existing image name if no new image is uploaded
 		if (imgFile != null && !imgFile.isEmpty()) {
