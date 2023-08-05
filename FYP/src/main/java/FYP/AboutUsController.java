@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  *
  */
 @Controller
-public class About_Us {
+public class AboutUsController {
 	@GetMapping("/about")
 	public String viewAbout(Model model) {
 		
