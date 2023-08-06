@@ -22,6 +22,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * @author 21033239
  *
@@ -45,6 +47,7 @@ public class User {
 	private Wallet wallet;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<Item> items;
 
 	public User() {

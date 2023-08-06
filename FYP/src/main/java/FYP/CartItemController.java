@@ -141,78 +141,70 @@ public class CartItemController {
 	}
 
 	@PostMapping("/cart/process_order")
-	public String processOrder(HttpServletRequest request, Model model, @RequestParam("cartTotal") double cartTotal,
-			@RequestParam("orderId") String orderId, @RequestParam("transactionId") String transactionId) {
+	public String processOrder(Model model, @RequestParam("cartTotal") double cartTotal,
+			@RequestParam("userId") Long userId, @RequestParam("orderId") String orderId,
+			@RequestParam("transactionId") String transactionId) {
+		// Retrieve cart items purchased
+		List<CartItem> cartItemList = cartItemRepo.findByUserId(userId);
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null && authentication.isAuthenticated()) {
-			Long loggedInUserId = getLoggedInUserId();
-			if (loggedInUserId != null) {
-				Optional<User> optionalUser = userRepo.findById(loggedInUserId);
-				if (optionalUser.isPresent()) {
-					// Retrieve cart items purchased
-					List<CartItem> cartItemList = cartItemRepo.findByUserId(loggedInUserId);
-					// Get user object
-					User currentUser = userRepo.getById(loggedInUserId);
-					// Loop to iterate through all cart items
-					for (int i = 0; i < cartItemList.size(); i++) {
-						// Retrieve details about current cart item
-						CartItem currentCartItem = cartItemList.get(i);
+		// Get user object
+		User currentUser = userRepo.getById(userId);
+		// Loop to iterate through all cart items
+		for (int i = 0; i < cartItemList.size(); i++) {
+			// Retrieve details about current cart item
+			CartItem currentCartItem = cartItemList.get(i);
 
-						Item currentItem = currentCartItem.getItem();
+			Item currentItem = currentCartItem.getItem();
 
-						// Update item table
-						int qtyInventory = currentItem.getQuantity();
-						int qtyInCart = currentCartItem.getQuantity();
-						int qtyToUpdate = qtyInventory - qtyInCart;
-						currentItem.setQuantity(qtyToUpdate);
-						itemRepo.save(currentItem);
+			// Update item table
+			int qtyInventory = currentItem.getQuantity();
+			int qtyInCart = currentCartItem.getQuantity();
+			int qtyToUpdate = qtyInventory - qtyInCart;
+			currentItem.setQuantity(qtyToUpdate);
+			itemRepo.save(currentItem);
 
-						// Update top selling item
-						TopSellingItem topSellingItem = topSellingItemRepository.findByItem(currentItem);
-						if (topSellingItem == null) {
-							// Create a new top selling item
-							topSellingItem = new TopSellingItem();
-							topSellingItem.setItem(currentItem);
-							topSellingItem.setSeller(currentItem.getUser());
-							topSellingItem.setQuantitySold(qtyInCart);
-						} else {
-							// Increment the quantity sold of the existing top selling item
-							topSellingItem.setQuantitySold(topSellingItem.getQuantitySold() + qtyInCart);
-						}
-						topSellingItemRepository.save(topSellingItem);
-
-						// Add item to order table
-						OrderItem newOrderItem = new OrderItem();
-
-						newOrderItem.setItem(currentItem);
-						newOrderItem.setUser(currentUser);
-						newOrderItem.setQuantity(qtyInCart);
-						newOrderItem.setSubtotal(currentCartItem.getSubtotal());
-						newOrderItem.setOrderId(orderId);
-						newOrderItem.setTransactionId(transactionId);
-
-						orderItemRepo.save(newOrderItem);
-
-					}
-					// clear cart items belonging to user
-					cartItemRepo.deleteAll(cartItemList);
-
-					// Pass info to view to display success page
-					model.addAttribute("transactionId", transactionId);
-					model.addAttribute("orderId", orderId);
-
-					// Send email
-					String subject = "WorldBay order is confirmed!";
-					String body = "Thank you for your order!\n" + "Order ID: " + orderId + "\n" + "Transaction ID: "
-							+ transactionId;
-					String to = currentUser.getEmail();
-					sendEmail(to, subject, body);
-
-				}
+			// Update top selling item
+			TopSellingItem topSellingItem = topSellingItemRepository.findByItem(currentItem);
+			if (topSellingItem == null) {
+				// Create a new top selling item
+				topSellingItem = new TopSellingItem();
+				topSellingItem.setItem(currentItem);
+				topSellingItem.setSeller(currentItem.getUser());
+				topSellingItem.setQuantitySold(qtyInCart);
+			} else {
+				// Increment the quantity sold of the existing top selling item
+				topSellingItem.setQuantitySold(topSellingItem.getQuantitySold() + qtyInCart);
 			}
+			topSellingItemRepository.save(topSellingItem);
+
+			// Add item to order table
+			OrderItem newOrderItem = new OrderItem();
+
+			newOrderItem.setItem(currentItem);
+			newOrderItem.setUser(currentUser);
+			newOrderItem.setQuantity(qtyInCart);
+			newOrderItem.setSubtotal(currentCartItem.getSubtotal());
+			newOrderItem.setOrderId(orderId);
+			newOrderItem.setTransactionId(transactionId);
+
+			orderItemRepo.save(newOrderItem);
+
 		}
-		return "success";
+		// clear cart items belonging to user
+		cartItemRepo.deleteAll(cartItemList);
+
+		// Pass info to view to display success page
+		model.addAttribute("transactionId", transactionId);
+		model.addAttribute("orderId", orderId);
+
+		// Send email
+		String subject = "WorldBay order is confirmed!";
+		String body = "Thank you for your order!\n" + "Order ID: " + orderId + "\n" + "Transaction ID: "
+				+ transactionId;
+		String to = currentUser.getEmail();
+		sendEmail(to, subject, body);
+
+		return "/success";
 	}
 
 	@PostMapping("/cart/payWithWallet")
