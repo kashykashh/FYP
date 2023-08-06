@@ -281,8 +281,15 @@ public class CartItemController {
 
 						// Notify the user that the payment was successful.
 						model.addAttribute("message", "Payment successful!");
+
+						return "successWallet";
+
 					} else {
-						model.addAttribute("message", "Insufficient balance");
+						model.addAttribute("message", "Insufficient balance in wallet");
+						model.addAttribute("cartItemList", cartItemList);
+						model.addAttribute("cartTotal", cartTotal);
+
+						return "cart";
 					}
 				}
 			}
