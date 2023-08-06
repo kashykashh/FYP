@@ -226,9 +226,15 @@
 					},
 					y: {
 						min: 0,
-						stacked: true
+						stacked: true,
+						ticks: {
+							callback: function (value, index, values) {
+								return '$' + value.toFixed(2);
+							}
+						}
 					}
 				},
+
 				plugins: {
 					tooltip: {
 						callbacks: {

@@ -64,7 +64,7 @@
 					</li>
 
 					<li><a class="nav-link text-white" href="/">Home</a></li>
-					<li th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''SELLER'')')}">
+					<li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
 						<a class="nav-link text-white" href="/categories">Categories</a>
 					</li>
 
