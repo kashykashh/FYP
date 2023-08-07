@@ -100,13 +100,28 @@ public class CartItemController {
 		if (cartItem != null) {
 			int cartItemQty = cartItem.getQuantity();
 			int totalQuantity = cartItemQty + quantity;
-			cartItem.setQuantity(totalQuantity);
+
+			// If the total quantity exceeds the available quantity, set the cart item
+			// quantity to the available quantity.
+			if (totalQuantity > availableQuantity) {
+				cartItem.setQuantity(availableQuantity);
+			} else {
+				cartItem.setQuantity(totalQuantity);
+			}
 			cartItemRepo.save(cartItem);
 		} else {
 			cartItem = new CartItem();
 			cartItem.setItem(item);
 			cartItem.setUser(user);
-			cartItem.setQuantity(quantity);
+
+			// If the requested quantity exceeds the available quantity, set the cart item
+			// quantity to the available quantity.
+			if (quantity > availableQuantity) {
+				cartItem.setQuantity(availableQuantity);
+			} else {
+				cartItem.setQuantity(quantity);
+			}
+
 			cartItem.calculateSubtotal();
 			cartItemRepo.save(cartItem);
 		}
@@ -116,12 +131,19 @@ public class CartItemController {
 
 	@PostMapping("/cart/update/{id}")
 	public String updateCart(@PathVariable("id") Long cartItemId, @RequestParam("qty") int qty) {
-
 		// Get cartItem object by cartItem's id
 		CartItem cartItem = cartItemRepo.getById(cartItemId);
 
-		// Set the quantity of the cartItem object retrieved
-		cartItem.setQuantity(qty);
+		// Get the available quantity for the item
+		int availableQuantity = cartItem.getItem().getQuantity();
+
+		// If the updated quantity exceeds the available quantity, set the cart item
+		// quantity to the available quantity.
+		if (qty > availableQuantity) {
+			cartItem.setQuantity(availableQuantity);
+		} else {
+			cartItem.setQuantity(qty);
+		}
 
 		// Save the cartItem back to the cartItemRepo
 		cartItemRepo.save(cartItem);
