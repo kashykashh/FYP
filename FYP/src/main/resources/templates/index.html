@@ -208,7 +208,7 @@
 						</a>
 					</p>
 					<p class="card-text">
-						<b>Price:</b> $<span th:text="${item.price}"></span>
+						<b>Price:</b> $<span th:text="'$'+${#numbers.formatDecimal(item.price, 1, 2)}"></span>
 					</p>
 					<p class="card-text">
 						<b>Category:</b> <span th:text="${item.category.name}"></span>

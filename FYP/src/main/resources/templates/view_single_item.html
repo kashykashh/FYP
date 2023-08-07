@@ -50,7 +50,7 @@
 								<span th:text="${item.user.name}"></span>
 							</a>
 							<p><span th:text="${item.description}"></span></p>
-							<p>$<span th:text="${item.price}"></span></p>
+							<p>$<span th:text="${#numbers.formatDecimal(item.price, 1, 2)}"></span></p>
 							<p>Quantity available: <span th:text="${item.quantity}"></span></p>
 							<form th:action="@{/cart/add/{itemId}(itemId=${item.id})}" method="post">
 								<div class="form-group">

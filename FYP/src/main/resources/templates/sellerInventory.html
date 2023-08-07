@@ -59,7 +59,7 @@
 					<tr th:each="item : ${itemList}">
 						<td th:text="${item.name}"></td>
 						<td th:text="${item.category.name}"></td>
-						<td th:text="${item.price}"></td>
+						<td th:text="'$'+${#numbers.formatDecimal(item.price, 1, 2)}"></td>
 						<td th:text="${item.quantity}" style="color: orange; font-weight: bold;"></td>
 						<td>
 							<div class="d-flex align-items-center">

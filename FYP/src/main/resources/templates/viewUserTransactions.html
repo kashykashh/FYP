@@ -48,7 +48,7 @@
 						<td th:text="${transaction.getTransactionId()}"></td>
 						<td th:text="${transaction.getItem().getName()}"></td>
 						<td th:text="${transaction.getQuantity()}"></td>
-						<td th:text=" ${(transaction.getQuantity()) * (transaction.getItem().getPrice())}"></td>
+						<td th:text="'$'+${#numbers.formatDecimal((transaction.getQuantity()) * (transaction.getItem().getPrice()), 1, 2)}"></td>
 					</tr>
 				</tbody>
 			</table>

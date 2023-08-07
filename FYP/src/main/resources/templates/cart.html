@@ -41,7 +41,7 @@
 										th:src="@{/uploads/items/{id}/{imageName}(id=${cartItem.item.id}, imageName=${cartItem.item.imgName})}">
 								</div>
 								<!-- Item quantity, price, links -->
-								<div class="col align-self-center" th:text="'$'+${cartItem.item.price}"></div>
+								<div class="col align-self-center" th:text="'$'+${#numbers.formatDecimal(cartItem.item.price, 1, 2)}"></div>
 								<div class="col align-self-center">
 									<!-- Update item quantity form -->
 									<form th:action="@{/cart/update/{id}(id=${cartItem.id})}" method="post">

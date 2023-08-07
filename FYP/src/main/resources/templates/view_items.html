@@ -52,7 +52,7 @@
 								</td>
 								<td th:text="${item.name}"></td>
 								<td th:text="${item.description}"></td>
-								<td th:text="${item.price}"></td>
+								<td th:text="'$'+${#numbers.formatDecimal(item.price, 1, 2)}"></td>
 								<td th:text="${item.quantity}"></td>
 								<td th:text="${item.category.name}"></td>
 								<td><img class="img-fluid" style="max-width: 100px; max-height: 100px;"
