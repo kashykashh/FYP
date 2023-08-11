@@ -221,7 +221,7 @@ public class ItemController {
 		// Manually copy the fields to update from updatedItem to existingItem
 		existingItem.setName(updatedItem.getName());
 		existingItem.setDescription(updatedItem.getDescription());
-		existingItem.setPrice(updatedItem.getPrice());
+		existingItem.setBasePrice(updatedItem.getBasePrice());
 		existingItem.setQuantity(updatedItem.getQuantity());
 		existingItem.setCategory(updatedItem.getCategory());
 
