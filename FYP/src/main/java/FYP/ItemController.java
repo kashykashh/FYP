@@ -340,9 +340,9 @@ public class ItemController {
 
 	// Helper method to perform image moderation
 	private String performImageModeration(MultipartFile imgFile, User user) {
-		String workflow = "wfl_eyxc7HSukhid5UAVv5WKD";
-		String apiUser = "112763094";
-		String apiSecret = "LTkEZqKNDL5mDTGU6P9d";
+		String workflow = "wfl_eAjJmZgKXdH5rrJaybpAi";
+		String apiUser = "741776820";
+		String apiSecret = "CVpuk4XkQDGGpM8AFQSW";
 
 		// Create a RestTemplate
 		RestTemplate restTemplate = new RestTemplate();
